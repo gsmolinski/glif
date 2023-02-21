@@ -32,7 +32,7 @@ golem::add_utils("helpers", with_test = TRUE)
 ## Creates .js and .css files at inst/app/www
 golem::add_js_file("change_nav_text")
 golem::add_js_file("get_geolocation")
-golem::add_js_file("toggle_app_theme")
+golem::add_js_file("change_theme")
 golem::add_js_handler("handlers")
 golem::add_css_file("glif_stylesheet")
 golem::add_sass_file("custom")

@@ -5,9 +5,9 @@ $( document ).ready(function() {
    if (tab_id === "map_tab") {
     glif_name.textContent = "glif";
     glif_desc.textContent = "stands for visibility";
-   } else {
+   } else if (tab_id === "architect_tab") {
     glif_name.textContent = "";
-    glif_desc.textContent = "... and for architects";
+    glif_desc.textContent = "...and for architects";
    }
  });
 });
