@@ -11,7 +11,13 @@ app_ui <- function(request) {
     golem_add_external_resources(),
     # Application UI logic
     f7Page(
-
+      f7TabLayout(
+        navbar = f7Navbar(tags$span(tags$span("glif", class = "glif-name-nav", id = "glif_name_nav_id"), tags$span("stands for visibility", class = "glif-desc-nav", id = "glif_desc_nav_id"), class = "glif-nav")),
+        f7Tabs(id = "glif_tabs",
+          f7Tab(tabName = "map_tab", icon = icon("map")),
+          f7Tab(tabName = "architect_tab", icon = icon("layer-group"))
+        )
+      )
     )
   )
 }

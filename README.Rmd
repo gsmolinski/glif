@@ -21,7 +21,7 @@ knitr::opts_chunk$set(
 
 ## Installation
 
-You can install the development version of glif from [GitHub](https://github.com/) with:
+You can install the development version of `{glif}` from [GitHub](https://github.com/) with:
 
 ``` r
 # install.packages("devtools")

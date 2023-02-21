@@ -11,7 +11,7 @@ status](https://www.r-pkg.org/badges/version/glif)](https://CRAN.R-project.org/p
 
 ## Installation
 
-You can install the development version of glif from
+You can install the development version of `{glif}` from
 [GitHub](https://github.com/) with:
 
 ``` r

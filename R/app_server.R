@@ -5,5 +5,7 @@
 #' @import shiny
 #' @noRd
 app_server <- function(input, output, session) {
-
+  observe({
+    session$sendCustomMessage("change_nav_text", input$glif_tabs)
+  })
 }

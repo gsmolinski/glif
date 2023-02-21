@@ -10,6 +10,7 @@ BugReports: https://github.com/gsmolinski/glif/issues
 Imports: 
     config (>= 0.3.1),
     golem (>= 0.3.5),
+    leaflet,
     shiny (>= 1.7.4),
     shinyMobile (>= 1.0.0)
 Suggests: 
