@@ -3,13 +3,13 @@ $( document ).ready(function() {
    navigator.geolocation.getCurrentPosition(success, error);
 
    function error(err) {
-     Shiny.onInputChange("geolocation", false);
+     Shiny.setInputValue("geolocation", false);
    }
 
    function success(pos) {
-     Shiny.onInputChange("geolocation", true);
-     Shiny.onInputChange("geolocation_lat", pos.coords.latitude);
-     Shiny.onInputChange("geolocation_long", pos.coords.longitude);
+     Shiny.setInputValue("geolocation", true);
+     Shiny.setInputValue("geolocation_lat", pos.coords.latitude);
+     Shiny.setInputValue("geolocation_lng", pos.coords.longitude);
    }
  });
 });

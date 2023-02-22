@@ -8,13 +8,13 @@
 #'
 #' @import shiny
 #' @import leaflet
-mod_map_ui <- function(id){
+mod_map_ui <- function(id) {
   ns <- NS(id)
   tagList(
     leafletOutput(ns("main_map"), height = "100%"),
     tags$div(class = "fab fab-right-bottom",
              tags$a(id = ns("geolocation_btn"), type = "button", class = "f7-action-button fab_map_btns fab_geolocation_btn",
-                    tags$i(class = "icon f7-icons", "location_fill"))
+                    tags$i(class = "icon f7-icons", "compass_fill"))
              ),
     tags$div(class = "fab fab-right-bottom",
              tags$a(id = ns("pin_btn"), type = "button", class = "f7-action-button fab_map_btns fab_pin_btn",
@@ -27,9 +27,10 @@ mod_map_ui <- function(id){
 #' @import shiny
 #' @import leaflet
 #' @noRd
-mod_map_server <- function(id, toggle_theme){
-  moduleServer( id, function(input, output, session){
+mod_map_server <- function(id, toggle_theme, geolocation, geolocation_lat, geolocation_lng) {
+  moduleServer( id, function(input, output, session) {
     ns <- session$ns
+    leaflet_proxy <- leafletProxy(ns("main_map"))
 
     output$main_map <- renderLeaflet({
       leaflet(options = leafletOptions(zoomControl = FALSE)) |>
@@ -37,7 +38,6 @@ mod_map_server <- function(id, toggle_theme){
     })
 
     observe({
-      leaflet_proxy <- leafletProxy(ns("main_map"))
       dark_requested <- (toggle_theme() %% 2) == 0
 
       if (dark_requested) {
@@ -52,12 +52,20 @@ mod_map_server <- function(id, toggle_theme){
     }) |>
       bindEvent(toggle_theme())
 
-
-
     observe({
       session$sendCustomMessage("get_geolocation", input$geolocation_btn)
     }) |>
       bindEvent(input$geolocation_btn)
+
+    observe({
+      req(geolocation())
+      leaflet_proxy |>
+        removeMarker("user_location") |>
+        setView(lat = geolocation_lat(), lng = geolocation_lng(), zoom = 17) |>
+        addCircleMarkers(lat = geolocation_lat(), lng = geolocation_lng(),
+                         layerId = "user_location")
+    })
+
   })
 }
 
