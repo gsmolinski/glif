@@ -27,14 +27,32 @@ mod_map_ui <- function(id){
 #' @import shiny
 #' @import leaflet
 #' @noRd
-mod_map_server <- function(id){
+mod_map_server <- function(id, toggle_theme){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
 
     output$main_map <- renderLeaflet({
       leaflet(options = leafletOptions(zoomControl = FALSE)) |>
-        addTiles()
+        addProviderTiles(providers$CartoDB.DarkMatter)
     })
+
+    observe({
+      leaflet_proxy <- leafletProxy(ns("main_map"))
+      dark_requested <- (toggle_theme() %% 2) == 0
+
+      if (dark_requested) {
+        leaflet_proxy |>
+          clearTiles() |>
+          addProviderTiles(providers$CartoDB.DarkMatter)
+      } else {
+        leaflet_proxy |>
+          clearTiles() |>
+          addProviderTiles(providers$CartoDB.Voyager)
+      }
+    }) |>
+      bindEvent(toggle_theme())
+
+
 
     observe({
       session$sendCustomMessage("get_geolocation", input$geolocation_btn)

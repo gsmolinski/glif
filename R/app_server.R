@@ -9,15 +9,12 @@ app_server <- function(input, output, session) {
     session$sendCustomMessage("change_nav_text", input$glif_tabs)
   })
 
-  dark_requested <- reactive({
-    (input$toggle_theme %% 2) != 0
+  observe({
+    dark_requested <- (input$toggle_theme %% 2) != 0
+    session$sendCustomMessage("change_theme", dark_requested)
   }) |>
     bindEvent(input$toggle_theme)
 
-  observe({
-    session$sendCustomMessage("change_theme", dark_requested())
-  }) |>
-    bindEvent(dark_requested())
-
-  mod_map_server("glif_map")
+  mod_map_server("glif_map",
+                 toggle_theme = reactive({input$toggle_theme}))
 }
