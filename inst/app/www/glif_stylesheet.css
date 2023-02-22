@@ -17,4 +17,12 @@
 
 #toggle_theme {
   width: 4rem !important;
+  color: #989898;
+  background: #3C3C3B;
+  background: linear-gradient(90deg, #3C3C3B 46%, #CBC8C3 100%);
+  /*
+  color: #717172;
+  background: #CBC8C3;
+  background: linear-gradient(90deg, #CBC8C3 46%, #3C3C3B 100%);
+  */
 }
