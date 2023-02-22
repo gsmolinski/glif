@@ -20,9 +20,17 @@
   color: #989898;
   background: #3C3C3B;
   background: linear-gradient(90deg, #3C3C3B 46%, #CBC8C3 100%);
-  /*
-  color: #717172;
-  background: #CBC8C3;
-  background: linear-gradient(90deg, #CBC8C3 46%, #3C3C3B 100%);
-  */
+}
+
+.leaflet-control-attribution {
+  visibility: hidden;
+}
+
+.fab_map_btns {
+ width: 40px !important;
+ height: 40px !important;
+}
+
+.fab_geolocation_btn {
+  margin-bottom: 150%;
 }

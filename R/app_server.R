@@ -18,4 +18,6 @@ app_server <- function(input, output, session) {
     session$sendCustomMessage("change_theme", dark_requested())
   }) |>
     bindEvent(dark_requested())
+
+  mod_map_server("glif_map")
 }
