@@ -58,12 +58,18 @@ mod_map_server <- function(id, toggle_theme, geolocation, geolocation_lat, geolo
       bindEvent(input$geolocation_btn)
 
     observe({
-      req(geolocation())
+      req(geolocation(), geolocation_lat(), geolocation_lng())
+
       leaflet_proxy |>
         removeMarker("user_location") |>
         setView(lat = geolocation_lat(), lng = geolocation_lng(), zoom = 17) |>
         addCircleMarkers(lat = geolocation_lat(), lng = geolocation_lng(),
                          layerId = "user_location")
+      # because we want to center view even if lat and lng didn't change;
+      # it doesn't work with bindEvent, probably because this is too fast
+      # then and req(geolocation()) returns false? I.e. geolocation
+      # do not work when first clicked after launching the app.
+      input$geolocation_btn
     })
 
   })
