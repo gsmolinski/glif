@@ -3,4 +3,4 @@
 .Rdata
 .httr-oauth
 .DS_Store
-inst/database-config.yml
+inst/database/database-config.yml

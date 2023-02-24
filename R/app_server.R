@@ -6,14 +6,8 @@
 #' @noRd
 app_server <- function(input, output, session) {
 
-  config_db <- config::get("glif_db", file = system.file(package = "glif", "database-config.yml"))
-
-  glif_db <- DBI::dbConnect(RPostgres::Postgres(),
-                            dbname = config_db$dbname,
-                            host = config_db$host,
-                            port = config_db$port,
-                            user = config_db$user,
-                            password = config_db$password)
+  glif_db <- connect_with_db(config::get("glif_db",
+                                         file = system.file(package = "glif", "database", "database-config.yml")))
 
   onStop(function() {
     DBI::dbDisconnect(glif_db)
