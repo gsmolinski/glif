@@ -15,8 +15,8 @@ CREATE TABLE "layers" (
 CREATE TABLE "markers" (
   "map_id" integer,
   "layer_id" integer,
-  "latitude" doubleprecision,
-  "longitude" doubleprecision,
+  "latitude" double precision,
+  "longitude" double precision,
   "marker_description" varchar(100),
   "expires" time
 );
