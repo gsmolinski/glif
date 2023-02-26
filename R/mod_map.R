@@ -62,7 +62,7 @@ mod_map_server <- function(id, toggle_theme, geolocation, geolocation_lat, geolo
 
       leaflet_proxy |>
         removeMarker("user_location") |>
-        setView(lat = geolocation_lat(), lng = geolocation_lng(), zoom = 17) |>
+        setView(lat = geolocation_lat(), lng = geolocation_lng(), zoom = 18) |>
         addCircleMarkers(lat = geolocation_lat(), lng = geolocation_lng(),
                          layerId = "user_location")
       # because we want to center view even if lat and lng didn't change;

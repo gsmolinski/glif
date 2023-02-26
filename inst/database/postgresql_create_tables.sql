@@ -9,7 +9,8 @@ CREATE TABLE "layers" (
   "map_id" integer,
   "layer_code" varchar(20),
   "layer_description" varchar(100),
-  "layer_edit_code" varchar(20)
+  "layer_edit_code" varchar(20),
+  "layer_participants" integer default 0
 );
 
 CREATE TABLE "markers" (
