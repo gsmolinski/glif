@@ -13,13 +13,13 @@ mod_map_ui <- function(id) {
   tagList(
     leafletOutput(ns("main_map"), height = "100%"),
     tags$div(class = "fab fab-right-bottom",
-             tags$a(id = ns("geolocation_btn"), type = "button", class = "f7-action-button fab_map_btns fab_geolocation_btn",
-                    tags$i(class = "icon f7-icons", "compass_fill"))
-             ),
-    tags$div(class = "fab fab-right-bottom",
              tags$a(id = ns("pin_btn"), type = "button", class = "f7-action-button fab_map_btns fab_pin_btn",
                     tags$i(class = "icon f7-icons", "map_pin"))
-    )
+    ),
+    tags$div(class = "fab fab-right-bottom",
+             tags$a(id = ns("geolocation_btn"), type = "button", class = "f7-action-button fab_map_btns fab_geolocation_btn",
+                    tags$i(class = "icon f7-icons", "compass_fill"))
+             )
   )
 }
 
@@ -53,12 +53,17 @@ mod_map_server <- function(id, toggle_theme, geolocation, geolocation_lat, geolo
       bindEvent(toggle_theme())
 
     observe({
-      session$sendCustomMessage("get_geolocation", input$geolocation_btn)
+      session$sendCustomMessage("get_geolocation", "placeholder")
     }) |>
       bindEvent(input$geolocation_btn)
 
     observe({
-      req(geolocation(), geolocation_lat(), geolocation_lng())
+      session$sendCustomMessage("get_geolocation", "placeholder")
+    }) |>
+      bindEvent(input$pin_btn)
+
+    observe({
+      req(geolocation_lat(), geolocation_lng())
 
       leaflet_proxy |>
         removeMarker("user_location") |>
@@ -71,6 +76,13 @@ mod_map_server <- function(id, toggle_theme, geolocation, geolocation_lat, geolo
       # do not work when first clicked after launching the app.
       input$geolocation_btn
     })
+
+    observe({
+      req(geolocation_lat(), geolocation_lng())
+
+
+    }) |>
+      bindEvent(input$pin_btn)
 
   })
 }

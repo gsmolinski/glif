@@ -10,7 +10,7 @@
 #' otherwise NULL.
 #' @noRd
 connect_with_db <- function(config_db) {
-  tryCatch(DBI::dbConnect(RPostgres::Postgres(),
+  tryCatch(pool::dbPool(RPostgres::Postgres(),
                           dbname = config_db$dbname,
                           host = config_db$host,
                           port = config_db$port,

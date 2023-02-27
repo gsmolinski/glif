@@ -5,14 +5,6 @@
 #' @import shiny
 #' @noRd
 app_server <- function(input, output, session) {
-
-  glif_db <- connect_with_db(config::get("glif_db",
-                                         file = system.file(package = "glif", "database", "database-config.yml")))
-
-  onStop(function() {
-    DBI::dbDisconnect(glif_db)
-  })
-
   observe({
     session$sendCustomMessage("change_nav_text", input$glif_tabs)
   })

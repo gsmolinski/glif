@@ -39,6 +39,7 @@
  height: 40px !important;
 }
 
-.fab_geolocation_btn {
+.fab_pin_btn {
   margin-bottom: 150%;
+  visibility: hidden;
 }

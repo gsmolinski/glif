@@ -4,6 +4,6 @@ test_that("connect_with_database returns connection or NULL if can't connect", {
   config_wrong$dbname <- "do not exists"
   glif_db <- connect_with_db(config_db)
   expect_null(connect_with_db(config_wrong))
-  expect_s4_class(glif_db, class = "PqConnection")
+  expect_type(glif_db, type = "environment")
   expect_equal(length(DBI::dbListTables(glif_db)), 5)
 })

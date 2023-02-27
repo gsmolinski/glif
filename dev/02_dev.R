@@ -21,7 +21,7 @@ attachment::att_amend_desc()
 ## Add modules ----
 ## Create a module infrastructure in R/
 golem::add_module(name = "map", with_test = TRUE) # Name of the module
-golem::add_module(name = "name_of_module2", with_test = TRUE) # Name of the module
+golem::add_module(name = "join_create", with_test = TRUE) # Name of the module
 
 ## Add helper functions ----
 ## Creates fct_* and utils_*
@@ -33,6 +33,8 @@ golem::add_utils("helpers", with_test = TRUE)
 golem::add_js_file("change_nav_text")
 golem::add_js_file("get_geolocation")
 golem::add_js_file("change_theme")
+golem::add_js_file("is_inside_map")
+golem::add_js_file("has_edit_privileges")
 golem::add_js_handler("handlers")
 golem::add_css_file("glif_stylesheet")
 golem::add_sass_file("custom")
