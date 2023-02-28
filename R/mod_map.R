@@ -27,7 +27,7 @@ mod_map_ui <- function(id) {
 #' @import shiny
 #' @import leaflet
 #' @noRd
-mod_map_server <- function(id, toggle_theme, geolocation, geolocation_lat, geolocation_lng) {
+mod_map_server <- function(id, toggle_theme, geolocation_lat, geolocation_lng) {
   moduleServer( id, function(input, output, session) {
     ns <- session$ns
     leaflet_proxy <- leafletProxy(ns("main_map"))
