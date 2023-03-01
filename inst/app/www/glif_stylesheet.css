@@ -43,3 +43,29 @@
   margin-bottom: 150%;
   visibility: hidden;
 }
+
+.join_create_row {
+  justify-content: center !important;
+  align-items: center !important;
+}
+
+.join_create_slash_col {
+  width: 10% !important;
+}
+
+.join_create_slash {
+  font-size: 250%;
+  text-align: center;
+}
+
+#map_tab_join_create-join,
+#architect_tab_join_create-join {
+  text-align: right;
+  font-size: 150%;
+}
+
+#map_tab_join_create-create,
+#architect_tab_join_create-create {
+  text-align: left;
+  font-size: 150%;
+}

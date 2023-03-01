@@ -19,10 +19,20 @@ app_ui <- function(request) {
         f7Tabs(id = "glif_tabs",
                .items = f7Button("toggle_theme", f7Icon("paintbrush_fill")),
                f7Tab(tabName = "map_tab", icon = f7Icon("map_fill"),
-                     mod_map_ui("glif_map")
+                     conditionalPanel("!input.is_inside_map",
+                                      mod_join_create_ui("map_tab_join_create")
+                                      ),
+                     conditionalPanel("input.is_inside_map",
+                                      mod_map_ui("glif_map")
+                                      )
                      ),
                f7Tab(tabName = "architect_tab", icon = f7Icon("layers_alt_fill"),
+                     conditionalPanel("!input.is_inside_map",
+                                      mod_join_create_ui("architect_tab_join_create")
+                                      ),
+                     conditionalPanel("input.is_inside_map",
 
+                                      )
                      )
         )
       )

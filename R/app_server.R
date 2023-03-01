@@ -16,6 +16,8 @@ app_server <- function(input, output, session) {
   }) |>
     bindEvent(input$toggle_theme)
 
+  mod_join_create_server("glif_join_create")
+
   mod_map_server("glif_map",
                  toggle_theme = reactive({input$toggle_theme}),
                  geolocation_lat = reactive({input$geolocation_lat}),
