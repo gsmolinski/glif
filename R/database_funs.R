@@ -55,7 +55,7 @@ get_layer_id_code <- function(glif_db_conn, id_map, code, with_edit_privileges) 
   glif_db_conn |>
     dplyr::tbl("layers") |>
     dplyr::filter(map_id == id_map & layer_code == code) |>
-    dplyr::select(layer_id, layer_code) |>
+    dplyr::select(id, layer_code) |>
     dplyr::collect() |>
     dplyr::mutate(edit_privileges = with_edit_privileges)
 }

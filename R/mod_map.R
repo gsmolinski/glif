@@ -11,7 +11,9 @@
 mod_map_ui <- function(id) {
   ns <- NS(id)
   tagList(
-    leafletOutput(ns("main_map"), height = "100%"),
+    conditionalPanel("input.is_inside_map",
+                     leafletOutput(ns("main_map"), height = "100%"),
+                     ),
     tags$div(class = "fab fab-right-bottom",
              tags$a(id = ns("pin_btn"), type = "button", class = "f7-action-button fab_map_btns fab_pin_btn",
                     tags$i(class = "icon f7-icons", "map_pin"))
@@ -34,7 +36,8 @@ mod_map_server <- function(id, toggle_theme, geolocation_lat, geolocation_lng) {
 
     output$main_map <- renderLeaflet({
       leaflet(options = leafletOptions(zoomControl = FALSE)) |>
-        addProviderTiles(providers$CartoDB.DarkMatter)
+        addProviderTiles(providers$CartoDB.DarkMatter,
+                         options = providerTileOptions(minZoom = 6))
     })
 
     observe({
@@ -43,11 +46,13 @@ mod_map_server <- function(id, toggle_theme, geolocation_lat, geolocation_lng) {
       if (dark_requested) {
         leaflet_proxy |>
           clearTiles() |>
-          addProviderTiles(providers$CartoDB.DarkMatter)
+          addProviderTiles(providers$CartoDB.DarkMatter,
+                           options = providerTileOptions(minZoom = 6))
       } else {
         leaflet_proxy |>
           clearTiles() |>
-          addProviderTiles(providers$CartoDB.Voyager)
+          addProviderTiles(providers$CartoDB.Voyager,
+                           options = providerTileOptions(minZoom = 6))
       }
     }) |>
       bindEvent(toggle_theme())

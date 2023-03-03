@@ -6,6 +6,11 @@
 #' @noRd
 app_server <- function(input, output, session) {
 
+  onStop(function() {
+    pool::dbExecute(glif_db, "UPDATE layers SET layer_participants = layer_participants - 1 WHERE id IN ($1)",
+                    params = list(session$userData$layer$id))
+  })
+
   observe({
     session$sendCustomMessage("change_nav_text", input$glif_tabs)
   })
@@ -16,7 +21,11 @@ app_server <- function(input, output, session) {
   }) |>
     bindEvent(input$toggle_theme)
 
-  mod_join_create_server("glif_join_create")
+  mod_join_create_server("map_tab_join_create",
+                         glif_db = glif_db)
+
+  mod_join_create_server("architect_tab_join_create",
+                         glif_db = glif_db)
 
   mod_map_server("glif_map",
                  toggle_theme = reactive({input$toggle_theme}),

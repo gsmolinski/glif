@@ -18,7 +18,8 @@ Imports:
     pool (>= 1.0.1),
     RPostgres,
     shiny (>= 1.7.4),
-    shinyMobile (>= 1.0.0)
+    shinyMobile (>= 1.0.0),
+    uuid
 Suggests: 
     spelling,
     testthat (>= 3.0.0)

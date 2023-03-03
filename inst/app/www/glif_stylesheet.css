@@ -25,9 +25,15 @@
 
 #toggle_theme {
   width: 4rem !important;
+  margin-right: 1%;
   color: #989898;
   background: #3C3C3B;
   background: linear-gradient(90deg, #3C3C3B 46%, #CBC8C3 100%);
+}
+
+.leaflet {
+  position: fixed !important;
+  bottom: 0 !important;
 }
 
 .leaflet-control-attribution {
