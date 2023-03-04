@@ -18,6 +18,134 @@ connect_with_db <- function(config_db) {
                           password = config_db$password)
 }
 
+#' Delete Rows Which Expired
+#'
+#' @param glif_db_conn connection to database.
+#' @param table
+#'
+#' @return
+#' Used for side effect - removes rows which
+#' are older than current time.
+#' @details
+#' The idea is that some data in database has
+#' date (7 days for map, minutes / hours for markers)
+#' after which it will be removed to keep database clean.
+#' This date is set up by user or automatically.
+#' We need to use `glue`, because there is some error
+#' if param is used as a table name.
+#' @noRd
+delete_expired <- function(glif_db_conn, table_name) {
+  pool::dbExecute(glif_db_conn,
+                  glue::glue_safe("DELETE FROM {table_name} WHERE expires <= $1"),
+                  params = list(as.double(Sys.time())))
+}
+
+#' Add or Remove One Participant For All Given Layers
+#'
+#' @param glif_db_conn connection to database.
+#' @param layer_ids ids of layers to which user belongs.
+#'
+#' @return
+#' Used for side effect - updated number
+#' of participants belongs to layer if
+#' user disconnect from the app (so remove
+#' number of participants then) or joins the
+#' layer (so add number of participants then).
+#' @details
+#' Number of participants is used to sort the cards
+#' in architect tab.
+#' @noRd
+update_participation_layers <- function(glif_db_conn, action = c("add", "remove"), layer_ids) {
+  if (action == "add") {
+    pool::dbExecute(glif_db_conn,
+                    "UPDATE layers SET layer_participants = layer_participants + 1 WHERE id IN ($1)",
+                    params = list(layer_ids))
+  } else if (action == "remove") {
+    pool::dbExecute(glif_db_conn,
+                    "UPDATE layers SET layer_participants = layer_participants - 1 WHERE id IN ($1)",
+                    params = list(layer_ids))
+  }
+}
+
+#' Insert Newly Created Map Into Database
+#'
+#' @param glif_db_conn connection to database.
+#' @param map_code map code (name)
+#'
+#' @return
+#' Used for side effect - inserts row to database.
+#' @noRd
+insert_data_into_maps <- function(glif_db_conn, map_code) {
+  pool::dbExecute(glif_db_conn,
+                  "INSERT INTO maps (map_code, expires) VALUES ($1, $2)",
+                  params = list(map_code, as.double(Sys.time() + 60 * 60 * 24 * 7)))
+}
+
+#' Insert Newly Created Layer Into Database
+#'
+#' @param glif_db_conn connection to database.
+#' @param map_id id of map (id taken from database).
+#' @param layer_code layer code (name).
+#' @param layer_description information about layer for
+#' other users.
+#' @param layer_edit_code cod needed to know if user
+#' may have edit privileges.
+#'
+#' @return
+#' Used for side effect - inserts row into database.
+#' @details
+#' We add 1 extra participant just to simplify sorting
+#' later - we want main layer to be at the top of all
+#' layers.
+#' @noRd
+insert_data_into_layers <- function(glif_db_conn, map_id, layer_code, layer_description, layer_edit_code) {
+  pool::dbExecute(glif_db_conn,
+                  "INSERT INTO layers (map_id, layer_code, layer_description, layer_edit_code, layer_participants)
+                   VALUES ($1, $2, $3, $4, $5)",
+                  params = list(map_id, layer_code, layer_description, layer_edit_code, 1 + 1))
+}
+
+#' Refresh Data By Retrieving Most Up To Date Data From Database
+#'
+#' @param glif_db_conn connection to database.
+#' @param session_user_data object `session$userData` - environment.
+#' @param map_code map code (name).
+#' @param layer_code layer code (name).
+#' @param with_edit_privileges logical. Does user have edit
+#' privileges for layer into which she / he joined?
+#' @param map logical. If TRUE, data for map will be refreshed.
+#' @param layer logical. If TRUE, data for layer will be refreshed.
+#' @param marker logical. If TRUE, data for marker will be refreshed.
+#'
+#' @return
+#' Used for side effect - function binds new data
+#' to `session` object (`userData` element), but because
+#' this object is an environment, we don't need to return
+#' anything (values are passed by reference).
+#' @details
+#' In this was decided to use `session` object (specifically:
+#' element `userData`) to store information about to which
+#' map user belongs, to which layers and so which markers user
+#' should see on map.
+#' @noRd
+refresh_data <- function(glif_db_conn, session_user_data, map_code = NULL, layer_code = NULL,
+                         with_edit_privileges = NULL, map = FALSE, layer = FALSE, marker = FALSE) {
+
+  if (map) {
+    session_user_data$map <- get_map_id(glif_db_conn, map_code)
+  }
+
+  if (layer) {
+    session_user_data$layer <- get_layer_id_code(glif_db_conn, session_user_data$map,
+                                                 layer_code, with_edit_privileges)
+  }
+
+  if (marker) {
+    session_user_data$marker <- get_markers(glif_db_conn, session_user_data$map,
+                                            session_user_data$layer$id)
+  }
+}
+
 #' Get Map ID From Database
 #'
 #' It assumes table name is "maps".
@@ -26,7 +154,7 @@ connect_with_db <- function(config_db) {
 #' @param code code_map (i.e. map name.)
 #'
 #' @return
-#' Integer length 1.
+#' Integer length 1 or 0 if nothing found.
 #' @noRd
 get_map_id <- function(glif_db_conn, code) {
   glif_db_conn |>

@@ -11,9 +11,7 @@
 mod_map_ui <- function(id) {
   ns <- NS(id)
   tagList(
-    conditionalPanel("input.is_inside_map",
-                     leafletOutput(ns("main_map"), height = "100%"),
-                     ),
+    leafletOutput(ns("main_map"), height = "100%"),
     tags$div(class = "fab fab-right-bottom",
              tags$a(id = ns("pin_btn"), type = "button", class = "f7-action-button fab_map_btns fab_pin_btn",
                     tags$i(class = "icon f7-icons", "map_pin"))
@@ -72,8 +70,8 @@ mod_map_server <- function(id, toggle_theme, geolocation_lat, geolocation_lng) {
 
       leaflet_proxy |>
         removeMarker("user_location") |>
-        setView(lat = geolocation_lat(), lng = geolocation_lng(), zoom = 18) |>
-        addCircleMarkers(lat = geolocation_lat(), lng = geolocation_lng(),
+        setView(geolocation_lat(), geolocation_lng(), zoom = 18) |>
+        addCircleMarkers(geolocation_lat(), geolocation_lng(),
                          layerId = "user_location")
       # because we want to center view even if lat and lng didn't change;
       # it doesn't work with bindEvent, probably because this is too fast

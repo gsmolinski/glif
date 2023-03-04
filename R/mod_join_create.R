@@ -39,11 +39,11 @@ mod_join_create_server <- function(id, glif_db){
 
     observe({
       req(input$code_for_map_join)
-      map_id <- get_map_id(glif_db, input$code_for_map_join)
-      if (length(map_id) == 1) {
-        session$userData$map <- map_id
+      refresh_data(glif_db, session$userData, map_code = input$code_for_map_join, map = TRUE)
+      if (length(session$userData$map) == 1) {
+        refresh_data(glif_db, session$userData, layer_code = input$code_for_map_join, with_edit_privileges = FALSE, layer = TRUE)
+        update_participation_layers(glif_db, "add", session$userData$layer$id[session$userData$layer$layer_code == input$code_for_map_join])
         session$sendCustomMessage("inside_map", TRUE)
-        session$userData$layer <- get_layer_id_code(glif_db, map_id, input$code_for_map_join, FALSE)
       } else {
         wrong_code_alert("Map doesn't exist.")
       }
@@ -52,20 +52,12 @@ mod_join_create_server <- function(id, glif_db){
 
     observe({
       req(input$code_for_map_create)
-      map_id <- get_map_id(glif_db, input$code_for_map_create)
-      if (length(map_id) == 0) {
-        edit_code <- uuid::UUIDgenerate()
-        pool::dbExecute(glif_db,
-                        "INSERT INTO maps (map_code, expires) VALUES ($1, $2)",
-                        params = list(input$code_for_map_create, as.double(Sys.time() + 60 * 60 * 24 * 7)))
-        session$userData$map <- get_map_id(glif_db, input$code_for_map_create)
-
-        pool::dbExecute(glif_db,
-                        "INSERT INTO layers (map_id, layer_code, layer_description, layer_edit_code, layer_participants)
-                        VALUES ($1, $2, $3, $4, $5)",
-                        params = list(session$userData$map, input$code_for_map_create, "Main markers", edit_code, 1 + 1)) # add extra 1 participants to sort to the top later in cards list
-        session$userData$layer <- get_layer_id_code(glif_db, session$userData$map, input$code_for_map_create, TRUE)
-
+      refresh_data(glif_db, session$userData, map_code = input$code_for_map_create, map = TRUE)
+      if (length(session$userData$map) == 0) {
+        insert_data_into_maps(glif_db, input$code_for_map_create)
+        refresh_data(glif_db, session$userData, map_code = input$code_for_map_create, map = TRUE)
+        insert_data_into_layers(glif_db, session$userData$map, input$code_for_map_create, "Main markers", uuid::UUIDgenerate())
+        refresh_data(glif_db, session$userData, layer_code = input$code_for_map_create, with_edit_privileges = TRUE, layer = TRUE)
         session$sendCustomMessage("inside_map", TRUE)
         session$sendCustomMessage("edit_privileges", TRUE)
       } else {

@@ -7,8 +7,7 @@
 app_server <- function(input, output, session) {
 
   onStop(function() {
-    pool::dbExecute(glif_db, "UPDATE layers SET layer_participants = layer_participants - 1 WHERE id IN ($1)",
-                    params = list(session$userData$layer$id))
+    update_participation_layers(glif_db, "remove", session$userData$layer$id)
   })
 
   observe({
