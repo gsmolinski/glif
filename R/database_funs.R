@@ -74,6 +74,8 @@ update_participation_layers <- function(glif_db_conn, action = c("add", "remove"
 #'
 #' @return
 #' Used for side effect - inserts row to database.
+#' @details
+#' Sys.time() converted to double returns value in seconds.
 #' @noRd
 insert_data_into_maps <- function(glif_db_conn, map_code) {
   pool::dbExecute(glif_db_conn,
@@ -90,19 +92,45 @@ insert_data_into_maps <- function(glif_db_conn, map_code) {
 #' other users.
 #' @param layer_edit_code cod needed to know if user
 #' may have edit privileges.
+#' @param layer_participants number of participants to add
+#' to layer. Usually 1, but when the map is created and we make
+#' "main layer", then 2, to easier sort later (we want main
+#' layer to be at the top of all layers).
 #'
 #' @return
 #' Used for side effect - inserts row into database.
-#' @details
-#' We add 1 extra participant just to simplify sorting
-#' later - we want main layer to be at the top of all
-#' layers.
 #' @noRd
-insert_data_into_layers <- function(glif_db_conn, map_id, layer_code, layer_description, layer_edit_code) {
+insert_data_into_layers <- function(glif_db_conn, map_id, layer_code, layer_description, layer_edit_code, layer_participants = 1) {
   pool::dbExecute(glif_db_conn,
                   "INSERT INTO layers (map_id, layer_code, layer_description, layer_edit_code, layer_participants)
                    VALUES ($1, $2, $3, $4, $5)",
-                  params = list(map_id, layer_code, layer_description, layer_edit_code, 1 + 1))
+                  params = list(map_id, layer_code, layer_description, layer_edit_code, layer_participants))
+}
+
+#' Insert Newly Created Marker Into Database
+#'
+#' @param glif_db_conn connection to database.
+#' @param map_id id of map (taken from database)
+#' @param layer_id id of layer (taken from database)
+#' @param latitude latitute coord
+#' @param longitude longitude coord
+#' @param marker_description description to show after
+#' clicked on marker
+#' @param expires after which time the marker should be
+#' removed from map? Specified in minutes.
+#'
+#' @return
+#' Used for side effect - inserts row into database, table
+#' "markers".
+#' @details
+#' Sys.time() converted to double returns value in seconds.
+#' @noRd
+insert_data_into_markers <- function(glif_db_conn, map_id, layer_id, latitude, longitude,
+                                     marker_description, expires) {
+  pool::dbExecute(glif_db_conn,
+                  "INSERT INTO markers (map_id, layer_id, latitude, longitude, marker_description, expires)
+                  VALUES ($1, $2, $3, $4, $5, $6)",
+                  params = list(map_id, layer_id, latitude, longitude, marker_description, as.double(Sys.time() + 60 * expires)))
 }
 
 #' Refresh Data By Retrieving Most Up To Date Data From Database
@@ -199,12 +227,12 @@ get_layer_id_code <- function(glif_db_conn, id_map, code, with_edit_privileges) 
 #'
 #' @return
 #' Tibble with columns: lat, lng of marker as well as
-#' description of marker.
+#' description of marker and layer id.
 #' @noRd
 get_markers <- function(glif_db_conn, id_map, layer_ids) {
   glif_db_conn |>
     dplyr::tbl("markers") |>
     dplyr::filter(map_id == id_map & layer_id %in% layer_ids) |>
-    dplyr::select(latitude, longitude, marker_description) |>
+    dplyr::select(layer_id, latitude, longitude, marker_description) |>
     dplyr::collect()
 }

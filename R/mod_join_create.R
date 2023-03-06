@@ -43,6 +43,7 @@ mod_join_create_server <- function(id, glif_db){
       if (length(session$userData$map) == 1) {
         refresh_data(glif_db, session$userData, layer_code = input$code_for_map_join, with_edit_privileges = FALSE, layer = TRUE)
         update_participation_layers(glif_db, "add", session$userData$layer$id[session$userData$layer$layer_code == input$code_for_map_join])
+        session$sendCustomMessage("edit_privileges", FALSE)
         session$sendCustomMessage("inside_map", TRUE)
       } else {
         wrong_code_alert("Map doesn't exist.")
@@ -56,10 +57,10 @@ mod_join_create_server <- function(id, glif_db){
       if (length(session$userData$map) == 0) {
         insert_data_into_maps(glif_db, input$code_for_map_create)
         refresh_data(glif_db, session$userData, map_code = input$code_for_map_create, map = TRUE)
-        insert_data_into_layers(glif_db, session$userData$map, input$code_for_map_create, "Main markers", uuid::UUIDgenerate())
+        insert_data_into_layers(glif_db, session$userData$map, input$code_for_map_create, "Main markers", uuid::UUIDgenerate(), 1 + 1)
         refresh_data(glif_db, session$userData, layer_code = input$code_for_map_create, with_edit_privileges = TRUE, layer = TRUE)
-        session$sendCustomMessage("inside_map", TRUE)
         session$sendCustomMessage("edit_privileges", TRUE)
+        session$sendCustomMessage("inside_map", TRUE)
       } else {
         wrong_code_alert("Map already exists.")
       }
