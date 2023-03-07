@@ -28,12 +28,16 @@ test_that("refresh_data returns data of correct structure", {
   expect_s3_class(env_obj$layer, "data.frame")
   expect_length(env_obj$layer, 3)
   expect_identical(names(env_obj$layer), c("id", "layer_code", "edit_privileges"))
+  refresh_data(glif_db, env_obj, layer_code = "test", with_edit_privileges = TRUE, layer = TRUE, append = TRUE)
+  expect_true(nrow(env_obj$layer) == 2)
 
   insert_data_into_markers(glif_db, env_obj$map, env_obj$layer$id[[1]], 1, 2, "test", 10)
   refresh_data(glif_db, env_obj, marker = TRUE)
   expect_s3_class(env_obj$marker, "data.frame")
   expect_length(env_obj$marker, 4)
   expect_identical(names(env_obj$marker), c("layer_id", "latitude", "longitude", "marker_description"))
+  refresh_data(glif_db, env_obj, marker = TRUE, append = TRUE)
+  expect_true(nrow(env_obj$marker) == 2)
 
   pool::dbExecute(glif_db, "DELETE FROM maps WHERE map_code = $1", params = list(uuid))
 })

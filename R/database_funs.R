@@ -133,6 +133,25 @@ insert_data_into_markers <- function(glif_db_conn, map_id, layer_id, latitude, l
                   params = list(map_id, layer_id, latitude, longitude, marker_description, as.double(Sys.time() + 60 * expires)))
 }
 
+#' Retrieve All Layers For Given Man
+#'
+#' Needed to display all layer for map
+#' for the user.
+#'
+#' @param glif_db_conn connection to database.
+#' @param id_map map id saved in `session$userData$map`.
+#'
+#' @return
+#' Tibble with columns specified in `select`.
+#' @noRd
+get_all_layers <- function(glif_db_conn, id_map) {
+  glif_db_conn |>
+    dplyr::tbl("layers") |>
+    dplyr::filter(map_id == id_map) |>
+    dplyr::select(layer_id = id, layer_code, layer_description, layer_edit_code, layer_participants) |>
+    dplyr::collect()
+}
+
 #' Refresh Data By Retrieving Most Up To Date Data From Database
 #'
 #' @param glif_db_conn connection to database.
@@ -144,6 +163,8 @@ insert_data_into_markers <- function(glif_db_conn, map_id, layer_id, latitude, l
 #' @param map logical. If TRUE, data for map will be refreshed.
 #' @param layer logical. If TRUE, data for layer will be refreshed.
 #' @param marker logical. If TRUE, data for marker will be refreshed.
+#' @param append logical. Should rows be append or not? Applicable
+#' only for layers and markers (both at the same time).
 #'
 #' @return
 #' Used for side effect - function binds new data
@@ -157,20 +178,33 @@ insert_data_into_markers <- function(glif_db_conn, map_id, layer_id, latitude, l
 #' should see on map.
 #' @noRd
 refresh_data <- function(glif_db_conn, session_user_data, map_code = NULL, layer_code = NULL,
-                         with_edit_privileges = NULL, map = FALSE, layer = FALSE, marker = FALSE) {
+                         with_edit_privileges = NULL, map = FALSE, layer = FALSE, marker = FALSE,
+                         append = FALSE) {
 
   if (map) {
     session_user_data$map <- get_map_id(glif_db_conn, map_code)
   }
 
   if (layer) {
-    session_user_data$layer <- get_layer_id_code(glif_db_conn, session_user_data$map,
-                                                 layer_code, with_edit_privileges)
+    if (append) {
+      session_user_data$layer <- dplyr::bind_rows(session_user_data$layer,
+                                                  get_layer_id_code(glif_db_conn, session_user_data$map,
+                                                                    layer_code, with_edit_privileges))
+    } else {
+      session_user_data$layer <- get_layer_id_code(glif_db_conn, session_user_data$map,
+                                                   layer_code, with_edit_privileges)
+    }
   }
 
   if (marker) {
-    session_user_data$marker <- get_markers(glif_db_conn, session_user_data$map,
-                                            session_user_data$layer$id)
+    if (append) {
+      session_user_data$marker <- dplyr::bind_rows(session_user_data$marker,
+                                                   get_markers(glif_db_conn, session_user_data$map,
+                                                               session_user_data$layer$id))
+    } else {
+      session_user_data$marker <- get_markers(glif_db_conn, session_user_data$map,
+                                              session_user_data$layer$id)
+    }
   }
 }
 

@@ -30,4 +30,6 @@ app_server <- function(input, output, session) {
                  toggle_theme = reactive({input$toggle_theme}),
                  geolocation_lat = reactive({input$geolocation_lat}),
                  geolocation_lng = reactive({input$geolocation_lng}))
+
+  mod_layers_server("glif_layers")
 }

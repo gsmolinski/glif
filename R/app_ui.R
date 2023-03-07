@@ -31,7 +31,7 @@ app_ui <- function(request) {
                                       mod_join_create_ui("architect_tab_join_create")
                                       ),
                      conditionalPanel("input.is_inside_map",
-
+                                      mod_layers_ui("glif_layers")
                                       )
                      )
         )

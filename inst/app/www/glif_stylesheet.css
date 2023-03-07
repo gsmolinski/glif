@@ -40,7 +40,7 @@
   visibility: hidden;
 }
 
-.fab_map_btns {
+.fab_map_layers_btns {
  width: 40px !important;
  height: 40px !important;
 }
@@ -48,6 +48,10 @@
 .fab_pin_btn {
   margin-bottom: 150%;
   visibility: hidden;
+}
+
+.fab_add_btn {
+  margin-bottom: 150%;
 }
 
 .join_create_row {
