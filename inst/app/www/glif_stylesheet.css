@@ -54,6 +54,12 @@
   margin-bottom: 150%;
 }
 
+.fab>a i {
+  left: 51% !important;
+  top: 46% !important;
+  transform: translate3d(-52%, -46%,0) rotate(0deg) scale(1) !important;
+}
+
 .join_create_row {
   justify-content: center !important;
   align-items: center !important;

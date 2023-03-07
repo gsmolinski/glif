@@ -13,11 +13,11 @@ mod_map_ui <- function(id) {
   tagList(
     leafletOutput(ns("main_map"), height = "100%"),
     tags$div(class = "fab fab-right-bottom",
-             tags$a(id = ns("pin_btn"), type = "button", class = "f7-action-button fab_map_btns fab_pin_btn",
+             tags$a(id = ns("pin_btn"), type = "button", class = "f7-action-button fab_map_layers_btns fab_pin_btn",
                     tags$i(class = "icon f7-icons", "map_pin_ellipse"))
     ),
     tags$div(class = "fab fab-right-bottom",
-             tags$a(id = ns("geolocation_btn"), type = "button", class = "f7-action-button fab_map_btns fab_geolocation_btn",
+             tags$a(id = ns("geolocation_btn"), type = "button", class = "f7-action-button fab_map_layers_btns fab_geolocation_btn",
                     tags$i(class = "icon f7-icons", "compass_fill"))
              )
   )
