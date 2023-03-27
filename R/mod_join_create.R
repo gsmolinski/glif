@@ -31,12 +31,12 @@ mod_join_create_server <- function(id, glif_db){
     ns <- session$ns
 
     observe({
-      ask_for_map_code(ns("code_for_map_join"))
+      display_modal_dialog(ns("code_for_map_join"), "Code (Name)")
     }) |>
       bindEvent(input$join)
 
     observe({
-      ask_for_map_code(ns("code_for_map_create"))
+      display_modal_dialog(ns("code_for_map_create"), "Code (Name)")
     }) |>
       bindEvent(input$create)
 
@@ -71,13 +71,4 @@ mod_join_create_server <- function(id, glif_db){
       bindEvent(input$code_for_map_create)
 
   })
-}
-
-
-ask_for_map_code <- function(id) {
-  f7Dialog(id, "Map Code (Name)", text = "", type = "prompt")
-}
-
-wrong_code_alert <- function(text) {
-  f7Toast(text, closeButton = FALSE, icon = f7Icon("exclamationmark_circle_fill"))
 }

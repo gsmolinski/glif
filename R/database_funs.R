@@ -159,7 +159,7 @@ get_all_layers <- function(glif_db_conn, id_map, edit_privileges) {
     dplyr::collect() |>
     dplyr::left_join(edit_privileges, by = c("layer_id" = "id")) |>
     dplyr::mutate(dplyr::across(c(edit_privileges, belongs), ~ dplyr::if_else(.x, .x, FALSE))) |>
-    dplyr::arrange(dplyr::desc(belongs), dplyr::desc(layer_participants))
+    dplyr::arrange(dplyr::desc(layer_participants == max(layer_participants)), dplyr::desc(edit_privileges), dplyr::desc(belongs), dplyr::desc(layer_participants))
 }
 
 #' Refresh Data By Retrieving Most Up To Date Data From Database

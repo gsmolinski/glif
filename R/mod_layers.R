@@ -36,8 +36,6 @@ mod_layers_server <- function(id, glif_db, inside_map) {
   moduleServer( id, function(input, output, session) {
     ns <- session$ns
 
-    layers_user <- reactiveVal(session$userData$layer)
-
     layers_all <- reactiveVal()
 
     observe({
@@ -53,13 +51,25 @@ mod_layers_server <- function(id, glif_db, inside_map) {
              content = layers_all()$layer_description,
              edit_privileges = layers_all()$edit_privileges,
              belongs = layers_all()$belongs,
-             MoreArgs = list(ns = ns))
+             participants = layers_all()$layer_participants,
+             MoreArgs = list(ns = ns,
+                             max_participants = max(layers_all()$layer_participants)))
     })
 
     observe({
-
-
-      layers_all() # to complete - at the end, add new layer, should refrsh automatically
+      display_modal_dialog(ns("add_layer_code"), "Code (Name)")
+      req(input$add_layer_code, layers_all())
+      if (!any(input$add_layer_code == layers_all()$layer_code)) {
+        display_modal_dialog(ns("add_layer_description"), "Description")
+        req(input$add_layer_description)
+        insert_data_into_layers(glif_db, session$userData$map,
+                                input$add_layer_code, input$add_layer_description, uuid::UUIDgenerate(), 1)
+        refresh_data(glif_db, session$userData, layer_code = input$add_layer_code, with_edit_privileges = TRUE,
+                     layer = TRUE, append = TRUE)
+        layers_all(get_all_layers(glif_db, session$userData$map, session$userData$layer[c("id", "edit_privileges")]))
+      } else {
+        wrong_code_alert("Code already exists.")
+      }
     }) |>
       bindEvent(input$add_btn)
 
@@ -78,11 +88,23 @@ mod_layers_server <- function(id, glif_db, inside_map) {
 #' HTML element.
 #' @noRd
 #' @import shinyMobile
-make_cards <- function(title, content, edit_privileges, belongs, ns) {
+make_cards <- function(title, content, edit_privileges, belongs, participants, ns, max_participants) {
+  if (participants == max_participants) {
+    card_class <- "card_main"
+  } else if (edit_privileges) {
+    card_class <- "card_edit"
+  } else if (belongs) {
+    card_class <- "card_belong"
+  } else {
+    card_class <- "card_rest"
+  }
+
   if (edit_privileges) {
     tagList(
-      f7Card(title = title,
-             content,
+      f7Card(class = card_class,
+             title = title,
+             tags$div(content, class = "card_content_text"),
+             tags$div(glue::glue("Participants: {participants}"), class = "card_participants"),
              footer = tagList(
                f7Row(class = "card_footer_row",
                  f7Col(
@@ -96,8 +118,10 @@ make_cards <- function(title, content, edit_privileges, belongs, ns) {
            )
   } else {
     tagList(
-      f7Card(title = title,
-             content,
+      f7Card(class = card_class,
+             title = title,
+             tags$div(content, class = "card_content_text"),
+             tags$div(glue::glue("Participants: {participants}"), class = "card_participants"),
              footer = tagList(
                f7Row(class = "card_footer_row",
                  f7Col(
