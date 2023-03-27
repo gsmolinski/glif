@@ -24,6 +24,14 @@ mod_map_ui <- function(id) {
 }
 
 #' map Server Functions
+#'
+#' @param id module id.
+#' @param toggle_theme reactive - number
+#' changes when user clicks the button
+#' responsible to change theme.
+#' @param geolocation_lat reactive with geolocation lat.
+#' @param geolocation_lng reactive with geolocation long.
+#'
 #' @import shiny
 #' @import leaflet
 #' @noRd

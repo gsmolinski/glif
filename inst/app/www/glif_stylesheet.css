@@ -85,3 +85,9 @@
   text-align: left;
   font-size: 150%;
 }
+
+.card_footer_row {
+  width: 100% !important;
+  margin-left: 20% !important;
+  margin-right: 20% !important;
+}

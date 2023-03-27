@@ -21,6 +21,9 @@ mod_join_create_ui <- function(id){
 
 #' join_create Server Functions
 #'
+#' @param id module id.
+#' @param glif_db connection to database.
+#'
 #' @noRd
 #' @import shiny
 mod_join_create_server <- function(id, glif_db){

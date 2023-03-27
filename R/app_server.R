@@ -31,5 +31,7 @@ app_server <- function(input, output, session) {
                  geolocation_lat = reactive({input$geolocation_lat}),
                  geolocation_lng = reactive({input$geolocation_lng}))
 
-  mod_layers_server("glif_layers")
+  mod_layers_server("glif_layers",
+                    glif_db = glif_db,
+                    inside_map = reactive({input$is_inside_map}))
 }

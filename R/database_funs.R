@@ -133,23 +133,33 @@ insert_data_into_markers <- function(glif_db_conn, map_id, layer_id, latitude, l
                   params = list(map_id, layer_id, latitude, longitude, marker_description, as.double(Sys.time() + 60 * expires)))
 }
 
-#' Retrieve All Layers For Given Man
+#' Retrieve All Layers For Given Map
 #'
 #' Needed to display all layer for map
 #' for the user.
 #'
 #' @param glif_db_conn connection to database.
 #' @param id_map map id saved in `session$userData$map`.
+#' @param edit_privileges data.frame with columns: layer id and
+#' info if user has edit privileges for id (for layer).
 #'
 #' @return
-#' Tibble with columns specified in `select`.
+#' Tibble with columns specified in `select` + column
+#' `edit_privileges` - logical TRUE / FALSE if user
+#' has edit privileges for given layer as well as column
+#' indicated if user already belongs to the layer.
 #' @noRd
-get_all_layers <- function(glif_db_conn, id_map) {
+get_all_layers <- function(glif_db_conn, id_map, edit_privileges) {
+  edit_privileges$belongs <- TRUE
+
   glif_db_conn |>
     dplyr::tbl("layers") |>
     dplyr::filter(map_id == id_map) |>
     dplyr::select(layer_id = id, layer_code, layer_description, layer_edit_code, layer_participants) |>
-    dplyr::collect()
+    dplyr::collect() |>
+    dplyr::left_join(edit_privileges, by = c("layer_id" = "id")) |>
+    dplyr::mutate(dplyr::across(c(edit_privileges, belongs), ~ dplyr::if_else(.x, .x, FALSE))) |>
+    dplyr::arrange(dplyr::desc(belongs), dplyr::desc(layer_participants))
 }
 
 #' Refresh Data By Retrieving Most Up To Date Data From Database
