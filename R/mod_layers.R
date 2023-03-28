@@ -116,14 +116,14 @@ make_cards <- function(title, content, edit_privileges, belongs, participants, n
              footer = tagList(
                f7Row(class = "card_footer_row",
                  f7Col(
-                   f7Button(ns(paste0(title, "_edit_check")), label = "Edit code")
+                   f7Button(ns(paste0(title, "_editcheck")), label = "Edit code")
                  ),
                  f7Col(
                    f7Button(ns(paste0(title, "_leave")), label = "Leave")
                  )
                )
              ))
-           )
+           ) -> card # ATTENTION: doesn't look pretty? :)
   } else {
     tagList(
       f7Card(class = card_class,
@@ -134,13 +134,14 @@ make_cards <- function(title, content, edit_privileges, belongs, participants, n
              footer = tagList(
                f7Row(class = "card_footer_row",
                  f7Col(
-                   f7Button(ns(paste0(title, "_edit_join")), label = "Edit code")
+                   f7Button(ns(paste0(title, "_editjoin")), label = "Edit code")
                  ),
                  f7Col(
                    if (belongs) f7Button(ns(paste0(title, "_leave")), label = "Leave") else f7Button(ns(paste0(title, "_join")), label = "Join")
                  )
                )
              ))
-           )
+           ) -> card
   }
+  card
 }
