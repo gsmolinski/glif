@@ -57,21 +57,28 @@ mod_layers_server <- function(id, glif_db, inside_map) {
     })
 
     observe({
+      req(layers_all())
       display_modal_dialog(ns("add_layer_code"), "Code (Name)")
-      req(input$add_layer_code, layers_all())
+    }) |>
+      bindEvent(input$add_btn)
+
+    observe({
       if (!any(input$add_layer_code == layers_all()$layer_code)) {
         display_modal_dialog(ns("add_layer_description"), "Description")
-        req(input$add_layer_description)
-        insert_data_into_layers(glif_db, session$userData$map,
-                                input$add_layer_code, input$add_layer_description, uuid::UUIDgenerate(), 1)
-        refresh_data(glif_db, session$userData, layer_code = input$add_layer_code, with_edit_privileges = TRUE,
-                     layer = TRUE, append = TRUE)
-        layers_all(get_all_layers(glif_db, session$userData$map, session$userData$layer[c("id", "edit_privileges")]))
       } else {
         wrong_code_alert("Code already exists.")
       }
     }) |>
-      bindEvent(input$add_btn)
+      bindEvent(input$add_layer_code)
+
+    observe({
+      insert_data_into_layers(glif_db, session$userData$map,
+                              input$add_layer_code, input$add_layer_description, uuid::UUIDgenerate(), 1)
+      refresh_data(glif_db, session$userData, layer_code = input$add_layer_code, with_edit_privileges = TRUE,
+                   layer = TRUE, append = TRUE)
+      layers_all(get_all_layers(glif_db, session$userData$map, session$userData$layer[c("id", "edit_privileges")]))
+    }) |>
+      bindEvent(input$add_layer_description)
 
   })
 }
@@ -104,6 +111,7 @@ make_cards <- function(title, content, edit_privileges, belongs, participants, n
       f7Card(class = card_class,
              title = title,
              tags$div(content, class = "card_content_text"),
+             tags$br(),
              tags$div(glue::glue("Participants: {participants}"), class = "card_participants"),
              footer = tagList(
                f7Row(class = "card_footer_row",
@@ -121,6 +129,7 @@ make_cards <- function(title, content, edit_privileges, belongs, participants, n
       f7Card(class = card_class,
              title = title,
              tags$div(content, class = "card_content_text"),
+             tags$br(),
              tags$div(glue::glue("Participants: {participants}"), class = "card_participants"),
              footer = tagList(
                f7Row(class = "card_footer_row",

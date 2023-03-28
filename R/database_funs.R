@@ -158,7 +158,7 @@ get_all_layers <- function(glif_db_conn, id_map, edit_privileges) {
     dplyr::select(layer_id = id, layer_code, layer_description, layer_edit_code, layer_participants) |>
     dplyr::collect() |>
     dplyr::left_join(edit_privileges, by = c("layer_id" = "id")) |>
-    dplyr::mutate(dplyr::across(c(edit_privileges, belongs), ~ dplyr::if_else(.x, .x, FALSE))) |>
+    dplyr::mutate(dplyr::across(c(edit_privileges, belongs), ~ dplyr::if_else(is.na(.x), FALSE, .x))) |>
     dplyr::arrange(dplyr::desc(layer_participants == max(layer_participants)), dplyr::desc(edit_privileges), dplyr::desc(belongs), dplyr::desc(layer_participants))
 }
 
