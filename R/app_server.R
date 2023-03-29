@@ -37,5 +37,6 @@ app_server <- function(input, output, session) {
                     glif_db = glif_db,
                     inside_map = reactive({input$is_inside_map}),
                     reload_btn = reactive({input$reload_btn}),
-                    add_btn = reactive({input$add_btn}))
+                    add_btn = reactive({input$add_btn}),
+                    changed_card_input = reactive({input$changed_card_input}))
 }

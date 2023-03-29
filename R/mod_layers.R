@@ -24,7 +24,7 @@ mod_layers_ui <- function(id) {
 #'
 #' @noRd
 #' @import shiny
-mod_layers_server <- function(id, glif_db, inside_map, reload_btn, add_btn) {
+mod_layers_server <- function(id, glif_db, inside_map, reload_btn, add_btn, changed_card_input) {
   moduleServer( id, function(input, output, session) {
     ns <- session$ns
 
@@ -39,6 +39,8 @@ mod_layers_server <- function(id, glif_db, inside_map, reload_btn, add_btn) {
       req(inside_map())
       layers_all(get_all_layers(glif_db, session$userData$map, session$userData$layer[c("id", "edit_privileges")]))
       ids <- lapply(layers_all()$layer_code, generate_ids, ns = ns)
+      session$sendCustomMessage("get_changed_card_input", unlist(ids, use.names = FALSE))
+
       mapply(make_cards,
              title = layers_all()$layer_code,
              ids = ids,
@@ -48,6 +50,11 @@ mod_layers_server <- function(id, glif_db, inside_map, reload_btn, add_btn) {
              participants = layers_all()$layer_participants,
              MoreArgs = list(max_participants = max(layers_all()$layer_participants)))
     })
+
+    observe({
+      print(changed_card_input())
+    }) |>
+      bindEvent(changed_card_input())
 
     observe({
       req(layers_all())
@@ -85,9 +92,9 @@ mod_layers_server <- function(id, glif_db, inside_map, reload_btn, add_btn) {
 #' Character vector with all possible Ids for a card.
 #' @noRd
 generate_ids <- function(title, ns) {
-  c(editshow = ns(paste0(title, "_editshow")),
+  c(showedit = ns(paste0(title, "_showedit")),
     leave = ns(paste0(title, "_leave")),
-    editadd = ns(paste0(title, "_editadd")),
+    addedit = ns(paste0(title, "_addedit")),
     join = ns(paste0(title, "_join")))
 }
 
@@ -126,7 +133,7 @@ make_cards <- function(title, ids, content, edit_privileges, belongs, participan
              footer = tagList(
                f7Row(class = "card_footer_row",
                  f7Col(
-                   f7Button(ids[["editshow"]], label = "Show edit")
+                   f7Button(ids[["showedit"]], label = "Show edit")
                  ),
                  f7Col(
                    f7Button(ids[["leave"]], label = "Leave")
@@ -144,7 +151,7 @@ make_cards <- function(title, ids, content, edit_privileges, belongs, participan
              footer = tagList(
                f7Row(class = "card_footer_row",
                  f7Col(
-                   f7Button(ids[["editadd"]], label = "Add edit")
+                   f7Button(ids[["addedit"]], label = "Add edit")
                  ),
                  f7Col(
                    if (belongs) f7Button(ids[["leave"]], label = "Leave")
