@@ -11,15 +11,7 @@
 mod_layers_ui <- function(id) {
   ns <- NS(id)
   tagList(
-    uiOutput(ns("cards")),
-    tags$div(class = "fab fab-right-bottom",
-             tags$a(id = ns("add_btn"), type = "button", class = "f7-action-button fab_map_layers_btns fab_add_btn",
-                    tags$i(class = "icon f7-icons", "plus_circle_fill"))
-    ),
-    tags$div(class = "fab fab-right-bottom",
-             tags$a(id = ns("reload_btn"), type = "button", class = "f7-action-button fab_map_layers_btns fab_reload_btn",
-                    tags$i(class = "icon f7-icons", "arrow_2_circlepath_circle_fill"))
-    )
+    uiOutput(ns("cards"))
   )
 }
 
@@ -32,7 +24,7 @@ mod_layers_ui <- function(id) {
 #'
 #' @noRd
 #' @import shiny
-mod_layers_server <- function(id, glif_db, inside_map) {
+mod_layers_server <- function(id, glif_db, inside_map, reload_btn, add_btn) {
   moduleServer( id, function(input, output, session) {
     ns <- session$ns
 
@@ -41,7 +33,7 @@ mod_layers_server <- function(id, glif_db, inside_map) {
     observe({
       layers_all(get_all_layers(glif_db, session$userData$map, session$userData$layer[c("id", "edit_privileges")]))
     }) |>
-      bindEvent(input$reload_btn)
+      bindEvent(reload_btn())
 
     output$cards <- renderUI({
       req(inside_map())
@@ -61,7 +53,7 @@ mod_layers_server <- function(id, glif_db, inside_map) {
       req(layers_all())
       display_modal_dialog(ns("add_layer_code"), "Code (Name)")
     }) |>
-      bindEvent(input$add_btn)
+      bindEvent(add_btn())
 
     observe({
       if (!any(input$add_layer_code == layers_all()$layer_code)) {
@@ -74,7 +66,7 @@ mod_layers_server <- function(id, glif_db, inside_map) {
 
     observe({
       insert_data_into_layers(glif_db, session$userData$map,
-                              input$add_layer_code, input$add_layer_description, uuid::UUIDgenerate(), 1)
+                              input$add_layer_code, input$add_layer_description, uuid::UUIDgenerate())
       refresh_data(glif_db, session$userData, layer_code = input$add_layer_code, with_edit_privileges = TRUE,
                    layer = TRUE, append = TRUE)
       layers_all(get_all_layers(glif_db, session$userData$map, session$userData$layer[c("id", "edit_privileges")]))
@@ -93,9 +85,9 @@ mod_layers_server <- function(id, glif_db, inside_map) {
 #' Character vector with all possible Ids for a card.
 #' @noRd
 generate_ids <- function(title, ns) {
-  c(editcheck = ns(paste0(title, "_editcheck")),
+  c(editshow = ns(paste0(title, "_editshow")),
     leave = ns(paste0(title, "_leave")),
-    editjoin = ns(paste0(title, "_editjoin")),
+    editadd = ns(paste0(title, "_editadd")),
     join = ns(paste0(title, "_join")))
 }
 
@@ -134,10 +126,28 @@ make_cards <- function(title, ids, content, edit_privileges, belongs, participan
              footer = tagList(
                f7Row(class = "card_footer_row",
                  f7Col(
-                   f7Button(ids[["editcheck"]], label = "Edit code")
+                   f7Button(ids[["editshow"]], label = "Show edit")
                  ),
                  f7Col(
                    f7Button(ids[["leave"]], label = "Leave")
+                 )
+               )
+             ))
+           )
+  } else if (belongs) {
+    tagList(
+      f7Card(class = card_class,
+             title = title,
+             tags$div(content, class = "card_content_text"),
+             tags$br(),
+             tags$div(glue::glue("Participants: {participants}"), class = "card_participants"),
+             footer = tagList(
+               f7Row(class = "card_footer_row",
+                 f7Col(
+                   f7Button(ids[["editadd"]], label = "Add edit")
+                 ),
+                 f7Col(
+                   if (belongs) f7Button(ids[["leave"]], label = "Leave")
                  )
                )
              ))
@@ -150,15 +160,12 @@ make_cards <- function(title, ids, content, edit_privileges, belongs, participan
              tags$br(),
              tags$div(glue::glue("Participants: {participants}"), class = "card_participants"),
              footer = tagList(
-               f7Row(class = "card_footer_row",
-                 f7Col(
-                   f7Button(ids[["editjoin"]], label = "Edit code")
-                 ),
-                 f7Col(
-                   if (belongs) f7Button(ids[["leave"]], label = "Leave") else f7Button(ids[["join"]], label = "Join")
-                 )
+               f7Row(class = "card_footer_row", style = "width: 33% !important;",
+                     f7Col(
+                       f7Button(ids[["join"]], label = "Join")
+                     )
                )
              ))
-           )
+    )
   }
 }

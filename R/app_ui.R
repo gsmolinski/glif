@@ -16,6 +16,16 @@ app_ui <- function(request) {
     ),
       f7TabLayout(
         navbar = f7Navbar(tags$span(tags$span("glif", class = "glif-name-nav", id = "glif_name_nav_id"), tags$span("stands for visibility", class = "glif-desc-nav", id = "glif_desc_nav_id"), class = "glif-nav")),
+        tags$div(id = "fab_btn_layers",
+                 tags$div(id = "add_btn_div", class = "fab fab-right-bottom",
+                          tags$a(id = "add_btn", type = "button", class = "f7-action-button fab_map_layers_btns fab_add_btn",
+                                 tags$i(class = "icon f7-icons", "plus_circle_fill"))
+                 ),
+                 tags$div(id = "reload_btn_div", class = "fab fab-right-bottom",
+                          tags$a(id = "reload_btn", type = "button", class = "f7-action-button fab_map_layers_btns fab_reload_btn",
+                                 tags$i(class = "icon f7-icons", "arrow_2_circlepath_circle_fill"))
+                 )
+        ),
         f7Tabs(id = "glif_tabs",
                .items = f7Button("toggle_theme", f7Icon("paintbrush_fill")),
                f7Tab(tabName = "map_tab", icon = f7Icon("map_fill"),

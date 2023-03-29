@@ -54,6 +54,15 @@
   margin-bottom: 150%;
 }
 
+#fab_btn_layers {
+  visibility: hidden;
+}
+
+#reload_btn_div,
+#add_btn_div {
+  margin-bottom: 4em !important;
+}
+
 .fab>a i {
   left: 51% !important;
   top: 46% !important;
@@ -87,7 +96,7 @@
 }
 
 .card_footer_row {
-  width: 100% !important;
-  margin-left: 20% !important;
-  margin-right: 20% !important;
+  width: 66% !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
 }

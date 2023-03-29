@@ -12,6 +12,8 @@ app_server <- function(input, output, session) {
 
   observe({
     session$sendCustomMessage("change_nav_text", input$glif_tabs)
+    req(input$is_inside_map)
+    session$sendCustomMessage("show_hide_fab_btns", input$glif_tabs)
   })
 
   observe({
@@ -33,5 +35,7 @@ app_server <- function(input, output, session) {
 
   mod_layers_server("glif_layers",
                     glif_db = glif_db,
-                    inside_map = reactive({input$is_inside_map}))
+                    inside_map = reactive({input$is_inside_map}),
+                    reload_btn = reactive({input$reload_btn}),
+                    add_btn = reactive({input$add_btn}))
 }
