@@ -46,14 +46,15 @@ mod_layers_server <- function(id, glif_db, inside_map) {
     output$cards <- renderUI({
       req(inside_map())
       layers_all(get_all_layers(glif_db, session$userData$map, session$userData$layer[c("id", "edit_privileges")]))
+      ids <- lapply(layers_all()$layer_code, generate_ids, ns = ns)
       mapply(make_cards,
              title = layers_all()$layer_code,
+             ids = ids,
              content = layers_all()$layer_description,
              edit_privileges = layers_all()$edit_privileges,
              belongs = layers_all()$belongs,
              participants = layers_all()$layer_participants,
-             MoreArgs = list(ns = ns,
-                             max_participants = max(layers_all()$layer_participants)))
+             MoreArgs = list(max_participants = max(layers_all()$layer_participants)))
     })
 
     observe({
@@ -83,19 +84,36 @@ mod_layers_server <- function(id, glif_db, inside_map) {
   })
 }
 
+#' Generate Ids For Cards.
+#'
+#' @param title card title which will work as id.
+#' @param ns - ns from `shiny`.
+#'
+#' @return
+#' Character vector with all possible Ids for a card.
+#' @noRd
+generate_ids <- function(title, ns) {
+  c(editcheck = ns(paste0(title, "_editcheck")),
+    leave = ns(paste0(title, "_leave")),
+    editjoin = ns(paste0(title, "_editjoin")),
+    join = ns(paste0(title, "_join")))
+}
+
 #' Make Card
 #'
 #' @param title card title.
 #' @param content card content.
 #' @param edit_privileges logical - has user edit privileges?
 #' @param belongs logical - does used belong to layer already?
-#' @param ns - ns from `shiny`,
+#' @param ids ids to use for input.
+#' @param participants number of participants in card.
+#' @param max_participants biggest number of participants through all cards.
 #'
 #' @return
 #' HTML element.
 #' @noRd
 #' @import shinyMobile
-make_cards <- function(title, content, edit_privileges, belongs, participants, ns, max_participants) {
+make_cards <- function(title, ids, content, edit_privileges, belongs, participants, max_participants) {
   if (participants == max_participants) {
     card_class <- "card_main"
   } else if (edit_privileges) {
@@ -116,14 +134,14 @@ make_cards <- function(title, content, edit_privileges, belongs, participants, n
              footer = tagList(
                f7Row(class = "card_footer_row",
                  f7Col(
-                   f7Button(ns(paste0(title, "_editcheck")), label = "Edit code")
+                   f7Button(ids[["editcheck"]], label = "Edit code")
                  ),
                  f7Col(
-                   f7Button(ns(paste0(title, "_leave")), label = "Leave")
+                   f7Button(ids[["leave"]], label = "Leave")
                  )
                )
              ))
-           ) -> card # ATTENTION: doesn't look pretty? :)
+           )
   } else {
     tagList(
       f7Card(class = card_class,
@@ -134,14 +152,13 @@ make_cards <- function(title, content, edit_privileges, belongs, participants, n
              footer = tagList(
                f7Row(class = "card_footer_row",
                  f7Col(
-                   f7Button(ns(paste0(title, "_editjoin")), label = "Edit code")
+                   f7Button(ids[["editjoin"]], label = "Edit code")
                  ),
                  f7Col(
-                   if (belongs) f7Button(ns(paste0(title, "_leave")), label = "Leave") else f7Button(ns(paste0(title, "_join")), label = "Join")
+                   if (belongs) f7Button(ids[["leave"]], label = "Leave") else f7Button(ids[["join"]], label = "Join")
                  )
                )
              ))
-           ) -> card
+           )
   }
-  card
 }
