@@ -95,8 +95,18 @@
   font-size: 150%;
 }
 
+#glif_layers-layers_join_btn {
+  margin-top: 2.9em;
+  width: 66%;
+  margin-right: auto;
+}
+
 .card_footer_row {
   width: 66% !important;
   margin-left: auto !important;
   margin-right: auto !important;
+}
+
+#col_remove_class_1 {
+  margin-right: 5%;
 }

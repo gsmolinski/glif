@@ -11,7 +11,21 @@
 mod_layers_ui <- function(id) {
   ns <- NS(id)
   tagList(
-    uiOutput(ns("cards"))
+    f7Row(
+      f7Col(id = "col_remove_class_1", class = "col-60", f7Text(ns("layers_join_text"), label = NULL, placeholder = "Code (name)")),
+      f7Col(id = "col_remove_class_2", class = "col-30", tags$div(class = "list",
+        tags$div(
+          tags$div(
+            f7Button(ns("layers_join_btn"), label = "JOIN"))
+          )
+        )
+      )
+    ),
+    tags$br(),
+    tags$div(id = ns("layers_cards_row"),
+             tags$div(id = ns("layers_cards_div"))
+             ),
+    tags$span(id = "end_vh")
   )
 }
 
@@ -35,21 +49,41 @@ mod_layers_server <- function(id, glif_db, inside_map, reload_btn, add_btn, chan
     }) |>
       bindEvent(reload_btn())
 
-    output$cards <- renderUI({
+    observe({
       req(inside_map())
       layers_all(get_all_layers(glif_db, session$userData$map, session$userData$layer[c("id", "edit_privileges")]))
       ids <- lapply(layers_all()$layer_code, generate_ids, ns = ns)
-      session$sendCustomMessage("get_changed_card_input", unlist(ids, use.names = FALSE))
+      removeUI(paste0("#", ns("layers_cards_div")))
+      insertUI(paste0("#", ns("layers_cards_row")),
+               where = "afterBegin",
+               ui = tags$div(id = ns("layers_cards_div")))
 
-      mapply(make_cards,
+      session$sendCustomMessage("get_changed_card_input", unlist(ids, use.names = FALSE))
+      mapply(insert_card,
              title = layers_all()$layer_code,
              ids = ids,
              content = layers_all()$layer_description,
              edit_privileges = layers_all()$edit_privileges,
              belongs = layers_all()$belongs,
              participants = layers_all()$layer_participants,
-             MoreArgs = list(max_participants = max(layers_all()$layer_participants)))
+             MoreArgs = list(max_participants = max(layers_all()$layer_participants),
+                             ns = ns),
+             SIMPLIFY = FALSE,
+             USE.NAMES = FALSE)
     })
+
+    observe({
+      req(input$layers_join_text)
+      req(layers_all())
+      if (input$layers_join_text %in% layers_all()$layer_code) {
+        refresh_data(glif_db, session$userData, layer_code = input$layers_join_text, with_edit_privileges = FALSE,
+                     layer = TRUE, append = TRUE)
+        layers_all(get_all_layers(glif_db, session$userData$map, session$userData$layer[c("id", "edit_privileges")]))
+      } else {
+        wrong_code_alert("Code (name) doesn't exist.")
+      }
+    }) |>
+      bindEvent(input$layers_join_btn)
 
     observe({
       print(changed_card_input())
@@ -98,7 +132,7 @@ generate_ids <- function(title, ns) {
     join = ns(paste0(title, "_join")))
 }
 
-#' Make Card
+#' Make and Insert Card
 #'
 #' @param title card title.
 #' @param content card content.
@@ -107,12 +141,13 @@ generate_ids <- function(title, ns) {
 #' @param ids ids to use for input.
 #' @param participants number of participants in card.
 #' @param max_participants biggest number of participants through all cards.
+#' @param ns - ns from `shiny`.
 #'
 #' @return
-#' HTML element.
+#' Used for side effect - inserts card to UI.
 #' @noRd
 #' @import shinyMobile
-make_cards <- function(title, ids, content, edit_privileges, belongs, participants, max_participants) {
+insert_card <- function(title, ids, content, edit_privileges, belongs, participants, max_participants, ns) {
   if (participants == max_participants) {
     card_class <- "card_main"
   } else if (edit_privileges) {
@@ -123,56 +158,29 @@ make_cards <- function(title, ids, content, edit_privileges, belongs, participan
     card_class <- "card_rest"
   }
 
-  if (edit_privileges) {
-    tagList(
-      f7Card(class = card_class,
-             title = title,
-             tags$div(content, class = "card_content_text"),
-             tags$br(),
-             tags$div(glue::glue("Participants: {participants}"), class = "card_participants"),
-             footer = tagList(
-               f7Row(class = "card_footer_row",
-                 f7Col(
-                   f7Button(ids[["showedit"]], label = "Show edit")
-                 ),
-                 f7Col(
-                   f7Button(ids[["leave"]], label = "Leave")
-                 )
-               )
-             ))
-           )
-  } else if (belongs) {
-    tagList(
-      f7Card(class = card_class,
-             title = title,
-             tags$div(content, class = "card_content_text"),
-             tags$br(),
-             tags$div(glue::glue("Participants: {participants}"), class = "card_participants"),
-             footer = tagList(
-               f7Row(class = "card_footer_row",
-                 f7Col(
-                   f7Button(ids[["addedit"]], label = "Add edit")
-                 ),
-                 f7Col(
-                   f7Button(ids[["leave"]], label = "Leave")
-                 )
-               )
-             ))
-           )
-  } else {
-    tagList(
-      f7Card(class = card_class,
-             title = title,
-             tags$div(content, class = "card_content_text"),
-             tags$br(),
-             tags$div(glue::glue("Participants: {participants}"), class = "card_participants"),
-             footer = tagList(
-               f7Row(class = "card_footer_row", style = "width: 33% !important;",
-                     f7Col(
-                       f7Button(ids[["join"]], label = "Join")
-                     )
-               )
-             ))
+  card <- tagList(
+    tags$div(id = ns(title),
+             f7Card(class = card_class,
+                    title = tags$span(title, class = "card_title"),
+                    tags$div(content, class = "card_content_text"),
+                    tags$br(),
+                    tags$div(glue::glue("Other participants: {participants}"), class = "card_participants"),
+                    footer = tagList(
+                      f7Row(class = "card_footer_row",
+                            f7Col(class = "footer_first_col_class", # should be variable
+                                  tags$span(f7Button(ids[["addedit"]], label = "Add edit")),
+                                  tags$span(f7Button(ids[["showedit"]], label = "Show edit"))
+                            ),
+                            f7Col(
+                              tags$span(f7Button(ids[["join"]], label = "Join")),
+                              tags$span(f7Button(ids[["leave"]], label = "Leave"))
+                            )
+                      )
+                    ))
     )
-  }
+  )
+
+  insertUI(paste0("#", ns("layers_cards_div")),
+           where = "beforeEnd",
+           ui = card)
 }
