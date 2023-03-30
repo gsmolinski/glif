@@ -154,7 +154,7 @@ make_cards <- function(title, ids, content, edit_privileges, belongs, participan
                    f7Button(ids[["addedit"]], label = "Add edit")
                  ),
                  f7Col(
-                   if (belongs) f7Button(ids[["leave"]], label = "Leave")
+                   f7Button(ids[["leave"]], label = "Leave")
                  )
                )
              ))
