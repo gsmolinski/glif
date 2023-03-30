@@ -48,14 +48,10 @@ mod_layers_server <- function(id, glif_db, inside_map, reload_btn, add_btn, chan
                                        last_index = Inf)
 
     observe({
+      reload_btn()
       req(inside_map())
       layers_all(get_all_layers(glif_db, session$userData$map, session$userData$layer[c("id", "edit_privileges")]))
     })
-
-    observe({
-      layers_all(get_all_layers(glif_db, session$userData$map, session$userData$layer[c("id", "edit_privileges")]))
-    }) |>
-      bindEvent(reload_btn())
 
     observe({
       req(layers_all())
@@ -85,7 +81,7 @@ mod_layers_server <- function(id, glif_db, inside_map, reload_btn, add_btn, chan
       req(cards_all())
       from <- cards_boundaries$start_from + 1
       req(from <= cards_boundaries$last_index)
-      to <- if (from + 3 > cards_boundaries$last_index) cards_boundaries$last_index else from + 3
+      to <- if (from + 10 > cards_boundaries$last_index) cards_boundaries$last_index else from + 10
       lapply(cards_all()[from:to], insert_card, ns = ns)
       cards_boundaries$start_from <- to
     }) |>
@@ -184,7 +180,7 @@ make_card <- function(title, ids, content, edit_privileges, belongs, participant
                     title = tags$span(title, class = "card_title"),
                     tags$div(content, class = "card_content_text"),
                     tags$br(),
-                    tags$div(paste0(tags$span("Participants: "), tags$span(participants, id = paste0(ns(title), "_participants_number"))), class = "card_participants"),
+                    tags$div(tags$span("Participants: "), tags$span(participants, id = paste0(ns(title), "_participants_number")), class = "card_participants"),
                     footer = tagList(
                       f7Row(class = "card_footer_row",
                             f7Col(class = "footer_first_col_class", # should be variable
