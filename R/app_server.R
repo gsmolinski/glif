@@ -38,5 +38,6 @@ app_server <- function(input, output, session) {
                     inside_map = reactive({input$is_inside_map}),
                     reload_btn = reactive({input$reload_btn}),
                     add_btn = reactive({input$add_btn}),
-                    changed_card_input = reactive({input$changed_card_input}))
+                    changed_card_input = reactive({input$changed_card_input}),
+                    end_vh_reached = reactive({input$end_vh_reached}))
 }

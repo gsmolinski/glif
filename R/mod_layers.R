@@ -38,11 +38,19 @@ mod_layers_ui <- function(id) {
 #'
 #' @noRd
 #' @import shiny
-mod_layers_server <- function(id, glif_db, inside_map, reload_btn, add_btn, changed_card_input) {
+mod_layers_server <- function(id, glif_db, inside_map, reload_btn, add_btn, changed_card_input, end_vh_reached) {
   moduleServer( id, function(input, output, session) {
     ns <- session$ns
 
     layers_all <- reactiveVal()
+    cards_all <- reactiveVal()
+    cards_boundaries <- reactiveValues(start_from = 0,
+                                       last_index = Inf)
+
+    observe({
+      req(inside_map())
+      layers_all(get_all_layers(glif_db, session$userData$map, session$userData$layer[c("id", "edit_privileges")]))
+    })
 
     observe({
       layers_all(get_all_layers(glif_db, session$userData$map, session$userData$layer[c("id", "edit_privileges")]))
@@ -50,8 +58,7 @@ mod_layers_server <- function(id, glif_db, inside_map, reload_btn, add_btn, chan
       bindEvent(reload_btn())
 
     observe({
-      req(inside_map())
-      layers_all(get_all_layers(glif_db, session$userData$map, session$userData$layer[c("id", "edit_privileges")]))
+      req(layers_all())
       ids <- lapply(layers_all()$layer_code, generate_ids, ns = ns)
       removeUI(paste0("#", ns("layers_cards_div")))
       insertUI(paste0("#", ns("layers_cards_row")),
@@ -59,18 +66,30 @@ mod_layers_server <- function(id, glif_db, inside_map, reload_btn, add_btn, chan
                ui = tags$div(id = ns("layers_cards_div")))
 
       session$sendCustomMessage("get_changed_card_input", unlist(ids, use.names = FALSE))
-      mapply(insert_card,
-             title = layers_all()$layer_code,
-             ids = ids,
-             content = layers_all()$layer_description,
-             edit_privileges = layers_all()$edit_privileges,
-             belongs = layers_all()$belongs,
-             participants = layers_all()$layer_participants,
-             MoreArgs = list(max_participants = max(layers_all()$layer_participants),
-                             ns = ns),
-             SIMPLIFY = FALSE,
-             USE.NAMES = FALSE)
+      cards_boundaries$last_index <- nrow(layers_all())
+      cards_boundaries$start_from <- 0
+      cards_all(mapply(make_card,
+                       title = layers_all()$layer_code,
+                       ids = ids,
+                       content = layers_all()$layer_description,
+                       edit_privileges = layers_all()$edit_privileges,
+                       belongs = layers_all()$belongs,
+                       participants = layers_all()$layer_participants,
+                       MoreArgs = list(max_participants = max(layers_all()$layer_participants),
+                                       ns = ns),
+                       SIMPLIFY = FALSE,
+                       USE.NAMES = FALSE))
     })
+
+    observe({
+      req(cards_all())
+      from <- cards_boundaries$start_from + 1
+      req(from <= cards_boundaries$last_index)
+      to <- if (from + 3 > cards_boundaries$last_index) cards_boundaries$last_index else from + 3
+      lapply(cards_all()[from:to], insert_card, ns = ns)
+      cards_boundaries$start_from <- to
+    }) |>
+      bindEvent(end_vh_reached())
 
     observe({
       req(input$layers_join_text)
@@ -132,7 +151,7 @@ generate_ids <- function(title, ns) {
     join = ns(paste0(title, "_join")))
 }
 
-#' Make and Insert Card
+#' Make Card
 #'
 #' @param title card title.
 #' @param content card content.
@@ -144,10 +163,11 @@ generate_ids <- function(title, ns) {
 #' @param ns - ns from `shiny`.
 #'
 #' @return
-#' Used for side effect - inserts card to UI.
+#' HTML element.
 #' @noRd
 #' @import shinyMobile
-insert_card <- function(title, ids, content, edit_privileges, belongs, participants, max_participants, ns) {
+#' @import shiny
+make_card <- function(title, ids, content, edit_privileges, belongs, participants, max_participants, ns) {
   if (participants == max_participants) {
     card_class <- "card_main"
   } else if (edit_privileges) {
@@ -158,13 +178,13 @@ insert_card <- function(title, ids, content, edit_privileges, belongs, participa
     card_class <- "card_rest"
   }
 
-  card <- tagList(
+  tagList(
     tags$div(id = ns(title),
              f7Card(class = card_class,
                     title = tags$span(title, class = "card_title"),
                     tags$div(content, class = "card_content_text"),
                     tags$br(),
-                    tags$div(glue::glue("Other participants: {participants}"), class = "card_participants"),
+                    tags$div(paste0(tags$span("Participants: "), tags$span(participants, id = paste0(ns(title), "_participants_number"))), class = "card_participants"),
                     footer = tagList(
                       f7Row(class = "card_footer_row",
                             f7Col(class = "footer_first_col_class", # should be variable
@@ -179,7 +199,19 @@ insert_card <- function(title, ids, content, edit_privileges, belongs, participa
                     ))
     )
   )
+}
 
+#' Insert Card
+#'
+#' @param card card from `make_card`.
+#' @param ns from `shiny`.
+#'
+#' @return
+#' Used for side effect - inserts
+#' HTML element to specific place.
+#' @noRd
+#' @import shiny
+insert_card <- function(card, ns) {
   insertUI(paste0("#", ns("layers_cards_div")),
            where = "beforeEnd",
            ui = card)
