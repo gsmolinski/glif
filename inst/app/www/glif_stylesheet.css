@@ -101,12 +101,29 @@
   margin-right: auto;
 }
 
-.card_footer_row {
+#col_remove_class_1 {
+  margin-left: 5%;
+}
+
+.card_footer_row_two_items {
   width: 66% !important;
   margin-left: auto !important;
   margin-right: auto !important;
 }
 
-#col_remove_class_1 {
-  margin-left: 5%;
+.card_footer_row_one_item {
+  width: 66% !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  justify-content: center;
 }
+
+.hide_glif {
+  display: none;
+}
+
+.show_glif {
+  display: initial;
+}
+
+

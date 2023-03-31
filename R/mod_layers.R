@@ -81,7 +81,7 @@ mod_layers_server <- function(id, glif_db, inside_map, reload_btn, add_btn, chan
       req(cards_all())
       from <- cards_boundaries$start_from + 1
       req(from <= cards_boundaries$last_index)
-      to <- if (from + 10 > cards_boundaries$last_index) cards_boundaries$last_index else from + 10
+      to <- if (from + 5 > cards_boundaries$last_index) cards_boundaries$last_index else from + 5
       lapply(cards_all()[from:to], insert_card, ns = ns)
       cards_boundaries$start_from <- to
     }) |>
@@ -174,6 +174,26 @@ make_card <- function(title, ids, content, edit_privileges, belongs, participant
     card_class <- "card_rest"
   }
 
+  addedit_span_class <- "show_glif"
+  showedit_span_class <- "show_glif"
+  join_span_class <- "show_glif"
+  leave_span_class <- "show_glif"
+
+  if (belongs) {
+    footer_first_col_class <- "show_glif"
+    card_footer_row_class <- "card_footer_row_two_items"
+    join_span_class <- "hide_glif"
+    if (edit_privileges) {
+      addedit_span_class <- "hide_glif"
+    } else {
+      showedit_span_class <- "hide_glif"
+    }
+  } else {
+    footer_first_col_class <- "hide_glif"
+    card_footer_row_class <- "card_footer_row_one_item"
+    leave_span_class <- "hide_glif"
+  }
+
   tagList(
     tags$div(id = ns(title),
              f7Card(class = card_class,
@@ -182,14 +202,14 @@ make_card <- function(title, ids, content, edit_privileges, belongs, participant
                     tags$br(),
                     tags$div(tags$span("Participants: "), tags$span(participants, id = paste0(ns(title), "_participants_number")), class = "card_participants"),
                     footer = tagList(
-                      f7Row(class = "card_footer_row",
-                            f7Col(class = "footer_first_col_class", # should be variable
-                                  tags$span(f7Button(ids[["addedit"]], label = "Add edit")),
-                                  tags$span(f7Button(ids[["showedit"]], label = "Show edit"))
+                      f7Row(class = card_footer_row_class,
+                            f7Col(id = paste0(ns(title), "_footerfirstcolid"), class = footer_first_col_class,
+                                  tags$span(f7Button(ids[["addedit"]], label = "Add edit"), id = paste0(ns(title), "_span_addedit"), class = addedit_span_class),
+                                  tags$span(f7Button(ids[["showedit"]], label = "Show edit"), id = paste0(ns(title), "_span_showedit"), class = showedit_span_class)
                             ),
                             f7Col(
-                              tags$span(f7Button(ids[["join"]], label = "Join")),
-                              tags$span(f7Button(ids[["leave"]], label = "Leave"))
+                                  tags$span(f7Button(ids[["join"]], label = "Join"), id = paste0(ns(title), "_span_join"), class = join_span_class),
+                                  tags$span(f7Button(ids[["leave"]], label = "Leave"), id = paste0(ns(title), "_span_leave"), class = leave_span_class)
                             )
                       )
                     ))
