@@ -8,7 +8,7 @@ $( document ).ready(function() {
  });
  $(document).on("shiny:inputchanged", function(e) {
   if (ids_input.includes(e.name) && e.value) {
-    Shiny.setInputValue("changed_card_input", e.name, {priority: "event"});
+    Shiny.setInputValue("changed_card_input", [e.name, e.value]);
   }
  });
 });

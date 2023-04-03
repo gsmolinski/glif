@@ -109,12 +109,14 @@ mod_layers_server <- function(id, glif_db, inside_map, reload_btn, add_btn, chan
       bindEvent(input$layers_join_btn)
 
     observe({
-      input_info <- determine_input(changed_card_input())
+      # for technical reasons (see JS code), `changed_card_input` returns character vector length 1,
+      # but we need only first element
+      input_info <- determine_input(changed_card_input()[[1]], ns(""))
       switch(input_info$type,
-             copyedit = layer_copy_edit(input_info$card_title, session$userData),
-             leaveeee = layer_leave(input_info$card_title, session$userData),
-             addeditt = layer_add_edit(input_info$card_title, session$userData),
-             joinnnnn = layer_join(input_info$card_title, session$userData)
+             copyedit = layer_copy_edit(input_info$card_code, session$userData, session),
+             leaveeee = layer_leave(input_info$card_code, session$userData, session),
+             addeditt = layer_add_edit(input_info$card_code, session$userData, session),
+             joinnnnn = layer_join(input_info$card_code, session$userData, session)
              )
     }) |>
       bindEvent(changed_card_input())
@@ -254,14 +256,13 @@ insert_card <- function(card, ns) {
 #'
 #' @param input_id input id.
 #' @param namespace namespace for module.
-#' Default value should be enough in any case.
 #'
 #' @return
 #' List with two elements - first element is a
 #' card id (id without namespace and added info about type),
 #' second element is a type of button.
 #' @noRd
-determine_input <- function(input_id, namespace = ns("")) {
+determine_input <- function(input_id, namespace) {
   list(
     card_code = gsub(paste0("^", namespace, "|_[a-z]+$"), "", input_id, perl = TRUE),
     type = substr(input_id, nchar(input_id) - 8 + 1, nchar(input_id))
@@ -270,8 +271,9 @@ determine_input <- function(input_id, namespace = ns("")) {
 
 #' Copy Edit Code to Clipboard
 #'
-#' @param card_title card title.
+#' @param card_code card title.
 #' @param session_user_data `session$userData` environment.
+#' @param session session from `shiny`.
 #'
 #' @return
 #' Used for side effect - copies edit code for given card
@@ -279,50 +281,53 @@ determine_input <- function(input_id, namespace = ns("")) {
 #' @import shiny
 #' @import shinyMobile
 #' @noRd
-layer_copy_edit <- function(card_title, session_user_data) {
+layer_copy_edit <- function(card_code, session_user_data, session) {
   card_data <- session_user_data$layer |>
                 dplyr::filter(map_id == session_user_data$map,
-                              session_user_data$layer$layer_code == card_title)
+                              session_user_data$layer$layer_code == card_code)
     req(card_data$edit_privileges) # should be TRUE, but let's check this anyway
     session$sendCustomMessage("copy_edit_code", card_data$layer_edit_code)
     f7Toast("Copied to clipboard", closeButton = FALSE,
             icon = f7Icon("checkmark_alt_circle_fill"),
-            closeTimeout = 1500)
+            closeTimeout = 1000)
 }
 
 #' Leave Layer (Card)
 #'
-#' @param card_title card title.
+#' @param card_code card title.
 #' @param session_user_data `session$userData` environment.
+#' @param session session from `shiny`.
 #'
 #' @return
 #' Used for side effect - user leaves the layer.
 #' @noRd
-layer_leave <- function(card_title, session_user_data) {
+layer_leave <- function(card_code, session_user_data, session) {
 
 }
 
 #' Add Edit Privileges to Given Layer (Card)
 #'
-#' @param card_title card title.
+#' @param card_code card title.
 #' @param session_user_data `session$userData` environment.
+#' @param session session from `shiny`.
 #'
 #' @return
 #' Used for side effects - adds edit privileges
 #' for the user for chosen layer.
 #' @noRd
-layer_add_edit <- function(card_title, session_user_data) {
+layer_add_edit <- function(card_code, session_user_data, session) {
 
 }
 
 #' Join to Layer (Card)
 #'
-#' @param card_title card title.
+#' @param card_code card title.
 #' @param session_user_data `session$userData` environment.
+#' @param session session from `shiny`.
 #'
 #' @return
 #' Used for side effect - user joins to the layer.
 #' @noRd
-layer_join <- function(card_title, session_user_data) {
+layer_join <- function(card_code, session_user_data, session) {
 
 }
