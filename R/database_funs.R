@@ -247,15 +247,13 @@ get_map_id <- function(glif_db_conn, code) {
 #' indicating if user passed correct edit code for given layer.
 #'
 #' @return
-#' Tibble with layer id, layer code (name)
-#' and informaton if user has edit privileges
-#' for given layer.
+#' Tibble.
 #' @noRd
 get_layer_id_code <- function(glif_db_conn, id_map, code, with_edit_privileges) {
   glif_db_conn |>
     dplyr::tbl("layers") |>
     dplyr::filter(map_id == id_map & layer_code == code) |>
-    dplyr::select(id, layer_code) |>
+    dplyr::select(map_id, id, layer_code, layer_edit_code) |>
     dplyr::collect() |>
     dplyr::mutate(edit_privileges = with_edit_privileges)
 }

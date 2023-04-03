@@ -35,6 +35,14 @@ mod_layers_ui <- function(id) {
 #' @param glif_db connection to database
 #' @param inside_map reactive logical vector
 #' length 1 indicating if user is already inside map.
+#' @param reload_btn reload_btn and add_btn needs to be
+#' outside this mod, because otherwise they do not behave
+#' like FAB buttons (position is not fixed).
+#' @param add_btn see above.
+#' @param changed_card_input indicated if and which button
+#' from footer in any card has been pushed by user.
+#' @param end_vh_reached used for infinite scrolling, indicates
+#' the end of visible height area.
 #'
 #' @noRd
 #' @import shiny
@@ -101,7 +109,13 @@ mod_layers_server <- function(id, glif_db, inside_map, reload_btn, add_btn, chan
       bindEvent(input$layers_join_btn)
 
     observe({
-      print(changed_card_input())
+      input_info <- determine_input(changed_card_input())
+      switch(input_info$type,
+             copyedit = layer_copy_edit(input_info$card_title, session$userData),
+             leaveeee = layer_leave(input_info$card_title, session$userData),
+             addeditt = layer_add_edit(input_info$card_title, session$userData),
+             joinnnnn = layer_join(input_info$card_title, session$userData)
+             )
     }) |>
       bindEvent(changed_card_input())
 
@@ -141,10 +155,13 @@ mod_layers_server <- function(id, glif_db, inside_map, reload_btn, add_btn, chan
 #' Character vector with all possible Ids for a card.
 #' @noRd
 generate_ids <- function(title, ns) {
-  c(showedit = ns(paste0(title, "_showedit")),
-    leave = ns(paste0(title, "_leave")),
-    addedit = ns(paste0(title, "_addedit")),
-    join = ns(paste0(title, "_join")))
+  # strange names, because later we want to use
+  # substr() easy with the same number of characters
+  # after `_`.
+  c(copyedit = ns(paste0(title, "_copyedit")),
+    leave = ns(paste0(title, "_leaveeee")),
+    addedit = ns(paste0(title, "_addeditt")),
+    join = ns(paste0(title, "_joinnnnn")))
 }
 
 #' Make Card
@@ -175,7 +192,7 @@ make_card <- function(title, ids, content, edit_privileges, belongs, participant
   }
 
   addedit_span_class <- "show_glif"
-  showedit_span_class <- "show_glif"
+  copyedit_span_class <- "show_glif"
   join_span_class <- "show_glif"
   leave_span_class <- "show_glif"
 
@@ -186,7 +203,7 @@ make_card <- function(title, ids, content, edit_privileges, belongs, participant
     if (edit_privileges) {
       addedit_span_class <- "hide_glif"
     } else {
-      showedit_span_class <- "hide_glif"
+      copyedit_span_class <- "hide_glif"
     }
   } else {
     footer_first_col_class <- "hide_glif"
@@ -205,7 +222,7 @@ make_card <- function(title, ids, content, edit_privileges, belongs, participant
                       f7Row(class = card_footer_row_class,
                             f7Col(id = paste0(ns(title), "_footerfirstcolid"), class = footer_first_col_class,
                                   tags$span(f7Button(ids[["addedit"]], label = "Add edit"), id = paste0(ns(title), "_span_addedit"), class = addedit_span_class),
-                                  tags$span(f7Button(ids[["showedit"]], label = "Show edit"), id = paste0(ns(title), "_span_showedit"), class = showedit_span_class)
+                                  tags$span(f7Button(ids[["copyedit"]], label = "Copy edit"), id = paste0(ns(title), "_span_copyedit"), class = copyedit_span_class)
                             ),
                             f7Col(
                                   tags$span(f7Button(ids[["join"]], label = "Join"), id = paste0(ns(title), "_span_join"), class = join_span_class),
@@ -231,4 +248,81 @@ insert_card <- function(card, ns) {
   insertUI(paste0("#", ns("layers_cards_div")),
            where = "beforeEnd",
            ui = card)
+}
+
+#' Determine Input Name and Input Type
+#'
+#' @param input_id input id.
+#' @param namespace namespace for module.
+#' Default value should be enough in any case.
+#'
+#' @return
+#' List with two elements - first element is a
+#' card id (id without namespace and added info about type),
+#' second element is a type of button.
+#' @noRd
+determine_input <- function(input_id, namespace = ns("")) {
+  list(
+    card_code = gsub(paste0("^", namespace, "|_[a-z]+$"), "", input_id, perl = TRUE),
+    type = substr(input_id, nchar(input_id) - 8 + 1, nchar(input_id))
+  )
+}
+
+#' Copy Edit Code to Clipboard
+#'
+#' @param card_title card title.
+#' @param session_user_data `session$userData` environment.
+#'
+#' @return
+#' Used for side effect - copies edit code for given card
+#' to the clipboard.
+#' @import shiny
+#' @import shinyMobile
+#' @noRd
+layer_copy_edit <- function(card_title, session_user_data) {
+  card_data <- session_user_data$layer |>
+                dplyr::filter(map_id == session_user_data$map,
+                              session_user_data$layer$layer_code == card_title)
+    req(card_data$edit_privileges) # should be TRUE, but let's check this anyway
+    session$sendCustomMessage("copy_edit_code", card_data$layer_edit_code)
+    f7Toast("Copied to clipboard", closeButton = FALSE,
+            icon = f7Icon("checkmark_alt_circle_fill"),
+            closeTimeout = 1500)
+}
+
+#' Leave Layer (Card)
+#'
+#' @param card_title card title.
+#' @param session_user_data `session$userData` environment.
+#'
+#' @return
+#' Used for side effect - user leaves the layer.
+#' @noRd
+layer_leave <- function(card_title, session_user_data) {
+
+}
+
+#' Add Edit Privileges to Given Layer (Card)
+#'
+#' @param card_title card title.
+#' @param session_user_data `session$userData` environment.
+#'
+#' @return
+#' Used for side effects - adds edit privileges
+#' for the user for chosen layer.
+#' @noRd
+layer_add_edit <- function(card_title, session_user_data) {
+
+}
+
+#' Join to Layer (Card)
+#'
+#' @param card_title card title.
+#' @param session_user_data `session$userData` environment.
+#'
+#' @return
+#' Used for side effect - user joins to the layer.
+#' @noRd
+layer_join <- function(card_title, session_user_data) {
+
 }
