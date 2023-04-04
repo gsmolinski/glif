@@ -49,7 +49,7 @@ mod_join_create_server <- function(id, glif_db){
         session$sendCustomMessage("edit_privileges", FALSE)
         session$sendCustomMessage("inside_map", TRUE)
       } else {
-        wrong_code_alert("Map doesn't exist.")
+        wrong_code_alert("Map doesn't exist")
       }
     }) |>
       bindEvent(input$code_for_map_join)
@@ -65,7 +65,7 @@ mod_join_create_server <- function(id, glif_db){
         session$sendCustomMessage("edit_privileges", TRUE)
         session$sendCustomMessage("inside_map", TRUE)
       } else {
-        wrong_code_alert("Map already exists.")
+        wrong_code_alert("Map already exists")
       }
     }) |>
       bindEvent(input$code_for_map_create)
