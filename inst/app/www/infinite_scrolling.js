@@ -1,6 +1,6 @@
 $( document ).ready(function() {
  let observer = new IntersectionObserver(function (entries) {
-   if (entries[0].intersectionRatio > 0) {
+   if (entries[0].isIntersecting) {
      Shiny.setInputValue("end_vh_reached", true, {priority: "event"});
    }
  });

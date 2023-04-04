@@ -25,7 +25,7 @@ mod_layers_ui <- function(id) {
     tags$div(id = ns("layers_cards_row"),
              tags$div(id = ns("layers_cards_div"))
              ),
-    tags$span(id = "end_vh")
+    tags$div(id = "end_vh")
   )
 }
 
@@ -58,7 +58,7 @@ mod_layers_server <- function(id, glif_db, inside_map, reload_btn, add_btn, chan
     observe({
       reload_btn()
       req(inside_map())
-      layers_all(get_all_layers(glif_db, session$userData$map, session$userData$layer[c("id", "edit_privileges")]))
+      layers_all(get_all_layers(glif_db, session$userData$map$id, session$userData$layer[c("id", "edit_privileges")]))
     })
 
     observe({
@@ -99,10 +99,10 @@ mod_layers_server <- function(id, glif_db, inside_map, reload_btn, add_btn, chan
       req(input$layers_join_text)
       req(layers_all())
       if (input$layers_join_text %in% layers_all()$layer_code) {
-        update_participation_layers(glif_db, "add", session_user_data$layer$id[session_user_data$layer$layer_code == input$layers_join_text])
+        update_participation_layers(glif_db, "add", session$userData$layer$id[session$userData$layer$layer_code == input$layers_join_text])
         refresh_data(glif_db, session$userData, layer_code = input$layers_join_text, with_edit_privileges = FALSE,
                      layer = TRUE, append = TRUE)
-        layers_all(get_all_layers(glif_db, session$userData$map, session$userData$layer[c("id", "edit_privileges")]))
+        layers_all(get_all_layers(glif_db, session$userData$map$id, session$userData$layer[c("id", "edit_privileges")]))
       } else {
         wrong_code_alert("Code (name) doesn't exist")
       }
@@ -110,12 +110,12 @@ mod_layers_server <- function(id, glif_db, inside_map, reload_btn, add_btn, chan
       bindEvent(input$layers_join_btn)
 
     observe({
-      # for technical reasons (see JS code), `changed_card_input` returns character vector length 1,
+      # for technical reasons (see JS code), `changed_card_input` returns character vector length 2,
       # but we need only first element
       input_info <- determine_input(changed_card_input()[[1]], ns(""))
       switch(input_info$type,
              copyedit = layer_copy_edit(input_info$card_code, session$userData, session),
-             leaveeee = layer_leave(input_info$card_code, session$userData, glif_db, layers_all),
+             leaveeee = layer_leave(input_info$card_code, session$userData, glif_db, layers_all, session),
              addeditt = display_modal_dialog(ns("add_edit_code"), "Edit code"),
              joinnnnn = layer_join(input_info$card_code, session$userData, glif_db, layers_all)
              )
@@ -144,11 +144,11 @@ mod_layers_server <- function(id, glif_db, inside_map, reload_btn, add_btn, chan
       bindEvent(input$add_layer_code)
 
     observe({
-      insert_data_into_layers(glif_db, session$userData$map,
+      insert_data_into_layers(glif_db, session$userData$map$id,
                               input$add_layer_code, input$add_layer_description, uuid::UUIDgenerate())
       refresh_data(glif_db, session$userData, layer_code = input$add_layer_code, with_edit_privileges = TRUE,
                    layer = TRUE, append = TRUE)
-      layers_all(get_all_layers(glif_db, session$userData$map, session$userData$layer[c("id", "edit_privileges")]))
+      layers_all(get_all_layers(glif_db, session$userData$map$id, session$userData$layer[c("id", "edit_privileges")]))
     }) |>
       bindEvent(input$add_layer_description)
 
@@ -290,7 +290,7 @@ determine_input <- function(input_id, namespace) {
 #' @noRd
 layer_copy_edit <- function(card_code, session_user_data, session) {
   card_data <- session_user_data$layer |>
-                dplyr::filter(map_id == session_user_data$map,
+                dplyr::filter(map_id == session_user_data$map$id,
                               session_user_data$layer$layer_code == card_code)
     req(card_data$edit_privileges) # should be TRUE, but let's check this anyway
     session$sendCustomMessage("copy_edit_code", card_data$layer_edit_code)
@@ -305,15 +305,24 @@ layer_copy_edit <- function(card_code, session_user_data, session) {
 #' @param session_user_data `session$userData` environment.
 #' @param glif_db connection to database.
 #' @param layers_all reactiveVal to update.
+#' @param session from `shiny`.
 #'
 #' @return
 #' Used for side effect - user leaves the layer.
 #' @noRd
-layer_leave <- function(card_code, session_user_data, glif_db, layers_all) {
-  update_participation_layers(glif_db, "remove", session_user_data$layer$id[session_user_data$layer$layer_code == card_code])
-  session_user_data$layer <- session_user_data$layer |>
-    dplyr::filter(!layer_code == card_code)
-  layers_all(get_all_layers(glif_db, session_user_data$map, session_user_data$layer[c("id", "edit_privileges")]))
+layer_leave <- function(card_code, session_user_data, glif_db, layers_all, session) {
+  if (card_code == session_user_data$map$map_code) {
+    update_participation_layers(glif_db, "remove", session_user_data$layer$id)
+    session_user_data$map <- NULL
+    session_user_data$layer <- NULL
+    session_user_data$marker <- NULL
+    session$sendCustomMessage("inside_map", FALSE)
+  } else {
+    update_participation_layers(glif_db, "remove", session_user_data$layer$id[session_user_data$layer$layer_code == card_code])
+    session_user_data$layer <- session_user_data$layer |>
+      dplyr::filter(!layer_code == card_code)
+    layers_all(get_all_layers(glif_db, session_user_data$map$id, session_user_data$layer[c("id", "edit_privileges")]))
+  }
 }
 
 #' Add Edit Privileges to Given Layer (Card)
@@ -333,7 +342,7 @@ layer_add_edit <- function(card_code, session_user_data, ns, glif_db, layers_all
   req(input$add_edit_code)
   if (session_user_data$layer$layer_edit_code[session_user_data$layer$layer_code == card_code] == input$add_edit_code) {
     session_user_data$layer$edit_privileges[session_user_data$layer$layer_code == card_code] <- TRUE
-    layers_all(get_all_layers(glif_db, session_user_data$map, session_user_data$layer[c("id", "edit_privileges")]))
+    layers_all(get_all_layers(glif_db, session_user_data$map$id, session_user_data$layer[c("id", "edit_privileges")]))
   } else {
     wrong_code_alert("Wrong edit code")
   }
@@ -353,5 +362,5 @@ layer_join <- function(card_code, session_user_data, glif_db, layers_all) {
   update_participation_layers(glif_db, "add", session_user_data$layer$id[session_user_data$layer$layer_code == card_code])
   refresh_data(glif_db, session_user_data, layer_code = card_code, with_edit_privileges = FALSE,
                layer = TRUE, append = TRUE)
-  layers_all(get_all_layers(glif_db, session_user_data$map, session_user_data$layer[c("id", "edit_privileges")]))
+  layers_all(get_all_layers(glif_db, session_user_data$map$id, session_user_data$layer[c("id", "edit_privileges")]))
 }

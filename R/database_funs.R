@@ -198,10 +198,10 @@ refresh_data <- function(glif_db_conn, session_user_data, map_code = NULL, layer
   if (layer) {
     if (append) {
       session_user_data$layer <- dplyr::bind_rows(session_user_data$layer,
-                                                  get_layer_id_code(glif_db_conn, session_user_data$map,
+                                                  get_layer_id_code(glif_db_conn, session_user_data$map$id,
                                                                     layer_code, with_edit_privileges))
     } else {
-      session_user_data$layer <- get_layer_id_code(glif_db_conn, session_user_data$map,
+      session_user_data$layer <- get_layer_id_code(glif_db_conn, session_user_data$map$id,
                                                    layer_code, with_edit_privileges)
     }
   }
@@ -209,10 +209,10 @@ refresh_data <- function(glif_db_conn, session_user_data, map_code = NULL, layer
   if (marker) {
     if (append) {
       session_user_data$marker <- dplyr::bind_rows(session_user_data$marker,
-                                                   get_markers(glif_db_conn, session_user_data$map,
+                                                   get_markers(glif_db_conn, session_user_data$map$id,
                                                                session_user_data$layer$id))
     } else {
-      session_user_data$marker <- get_markers(glif_db_conn, session_user_data$map,
+      session_user_data$marker <- get_markers(glif_db_conn, session_user_data$map$id,
                                               session_user_data$layer$id)
     }
   }
@@ -226,14 +226,14 @@ refresh_data <- function(glif_db_conn, session_user_data, map_code = NULL, layer
 #' @param code code_map (i.e. map name.)
 #'
 #' @return
-#' Integer length 1 or 0 if nothing found.
+#' Tibble (columns - see select function).
 #' @noRd
 get_map_id <- function(glif_db_conn, code) {
   glif_db_conn |>
     dplyr::tbl("maps") |>
     dplyr::filter(map_code == code) |>
-    dplyr::collect() |>
-    dplyr::pull(id)
+    dplyr::select(id, map_code) |>
+    dplyr::collect()
 }
 
 #' Get Layer ID And Layer Code (Name)

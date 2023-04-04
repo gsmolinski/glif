@@ -12,7 +12,6 @@ app_server <- function(input, output, session) {
 
   observe({
     session$sendCustomMessage("change_nav_text", input$glif_tabs)
-    req(input$is_inside_map)
     session$sendCustomMessage("show_hide_fab_btns", input$glif_tabs)
   })
 

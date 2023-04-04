@@ -43,7 +43,7 @@ mod_join_create_server <- function(id, glif_db){
     observe({
       req(input$code_for_map_join)
       refresh_data(glif_db, session$userData, map_code = input$code_for_map_join, map = TRUE)
-      if (length(session$userData$map) == 1) {
+      if (length(session$userData$map$id) == 1) {
         refresh_data(glif_db, session$userData, layer_code = input$code_for_map_join, with_edit_privileges = FALSE, layer = TRUE)
         update_participation_layers(glif_db, "add", session$userData$layer$id[session$userData$layer$layer_code == input$code_for_map_join])
         session$sendCustomMessage("edit_privileges", FALSE)
@@ -57,10 +57,10 @@ mod_join_create_server <- function(id, glif_db){
     observe({
       req(input$code_for_map_create)
       refresh_data(glif_db, session$userData, map_code = input$code_for_map_create, map = TRUE)
-      if (length(session$userData$map) == 0) {
+      if (length(session$userData$map$id) == 0) {
         insert_data_into_maps(glif_db, input$code_for_map_create)
         refresh_data(glif_db, session$userData, map_code = input$code_for_map_create, map = TRUE)
-        insert_data_into_layers(glif_db, session$userData$map, input$code_for_map_create, "Main markers", uuid::UUIDgenerate())
+        insert_data_into_layers(glif_db, session$userData$map$id, input$code_for_map_create, "Main markers", uuid::UUIDgenerate())
         refresh_data(glif_db, session$userData, layer_code = input$code_for_map_create, with_edit_privileges = TRUE, layer = TRUE)
         session$sendCustomMessage("edit_privileges", TRUE)
         session$sendCustomMessage("inside_map", TRUE)

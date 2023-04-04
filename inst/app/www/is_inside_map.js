@@ -1,6 +1,7 @@
 $( document ).ready(function() {
   let map_tab = document.getElementById("glif_tabs-map_tab");
   let architect_tab = document.getElementById("glif_tabs-architect_tab");
+  let fab_div = document.getElementById("fab_btn_layers");
   map_tab.classList.add("display-flex");
   map_tab.classList.add("flex-direction-column");
   map_tab.classList.add("justify-content-center");
@@ -21,6 +22,9 @@ $( document ).ready(function() {
      architect_tab.classList.remove("display-flex");
      architect_tab.classList.remove("flex-direction-column");
      architect_tab.classList.remove("justify-content-center");
+     if (Shiny.shinyapp.$inputValues.glif_tabs === "architect_tab") {
+       fab_div.style.visibility = "visible";
+     }
    } else {
      map_tab.classList.add("display-flex");
      map_tab.classList.add("flex-direction-column");
@@ -28,6 +32,7 @@ $( document ).ready(function() {
      architect_tab.classList.add("display-flex");
      architect_tab.classList.add("flex-direction-column");
      architect_tab.classList.add("justify-content-center");
+     fab_div.style.visibility = "hidden";
    }
  });
 });
