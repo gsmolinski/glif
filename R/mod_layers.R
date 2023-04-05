@@ -99,6 +99,7 @@ mod_layers_server <- function(id, glif_db, inside_map, reload_btn, add_btn, chan
       req(input$layers_join_text)
       req(layers_all())
       if (input$layers_join_text %in% layers_all()$layer_code) {
+        req(!input$layers_join_text %in% session$userData$layer$layer_code)
         update_participation_layers(glif_db, "add", session$userData$layer$id[session$userData$layer$layer_code == input$layers_join_text])
         refresh_data(glif_db, session$userData, layer_code = input$layers_join_text, with_edit_privileges = FALSE,
                      layer = TRUE, append = TRUE)
