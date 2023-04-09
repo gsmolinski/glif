@@ -83,6 +83,13 @@ mod_layers_server <- function(id, glif_db, inside_map, reload_btn, add_btn, chan
                                        ns = ns),
                        SIMPLIFY = FALSE,
                        USE.NAMES = FALSE))
+
+      # otherwise when end vh is reached and we reload list of layers
+      # nothing happens, because the observe below is not run (because
+      # end_vh_reached() is not recomputed)
+      if (length(cards_all()) < 10) {
+        session$sendCustomMessage("trigger_end_vh_reached", "placeholder")
+      }
     })
 
     observe({
@@ -100,9 +107,9 @@ mod_layers_server <- function(id, glif_db, inside_map, reload_btn, add_btn, chan
       req(layers_all())
       if (input$layers_join_text %in% layers_all()$layer_code) {
         req(!input$layers_join_text %in% session$userData$layer$layer_code)
-        update_participation_layers(glif_db, "add", session$userData$layer$id[session$userData$layer$layer_code == input$layers_join_text])
         refresh_data(glif_db, session$userData, layer_code = input$layers_join_text, with_edit_privileges = FALSE,
                      layer = TRUE, append = TRUE)
+        update_participation_layers(glif_db, "add", session$userData$layer$id[session$userData$layer$layer_code == input$layers_join_text])
         layers_all(get_all_layers(glif_db, session$userData$map$id, session$userData$layer[c("id", "edit_privileges")]))
       } else {
         wrong_code_alert("Code (name) doesn't exist")
@@ -360,8 +367,8 @@ layer_add_edit <- function(card_code, session_user_data, ns, glif_db, layers_all
 #' Used for side effect - user joins to the layer.
 #' @noRd
 layer_join <- function(card_code, session_user_data, glif_db, layers_all) {
-  update_participation_layers(glif_db, "add", session_user_data$layer$id[session_user_data$layer$layer_code == card_code])
   refresh_data(glif_db, session_user_data, layer_code = card_code, with_edit_privileges = FALSE,
                layer = TRUE, append = TRUE)
+  update_participation_layers(glif_db, "add", session_user_data$layer$id[session_user_data$layer$layer_code == card_code])
   layers_all(get_all_layers(glif_db, session_user_data$map$id, session_user_data$layer[c("id", "edit_privileges")]))
 }

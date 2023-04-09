@@ -5,4 +5,8 @@ $( document ).ready(function() {
    }
  });
  observer.observe(document.getElementById("end_vh"));
+
+ Shiny.addCustomMessageHandler("trigger_end_vh_reached", function(placeholder) {
+   Shiny.setInputValue("end_vh_reached", true, {priority: "event"});
+ });
 });
