@@ -132,7 +132,7 @@ mod_layers_server <- function(id, glif_db, inside_map, reload_btn, add_btn, chan
 
     observe({
       input_info <- determine_input(changed_card_input()[[1]], ns(""))
-      layer_add_edit(input_info$card_code, session$userData, ns, glif_db, layers_all, input)
+      layer_add_edit(input_info$card_code, session$userData, ns, glif_db, layers_all, input, session)
     }) |>
       bindEvent(input$add_edit_code)
 
@@ -341,16 +341,18 @@ layer_leave <- function(card_code, session_user_data, glif_db, layers_all, sessi
 #' @param glif_db connection to database.
 #' @param layers_all reactiveVal to update.
 #' @param input from `shiny`.
+#' @param session from `shiny`.
 #'
 #' @return
 #' Used for side effects - adds edit privileges
 #' for the user for chosen layer.
 #' @noRd
-layer_add_edit <- function(card_code, session_user_data, ns, glif_db, layers_all, input) {
+layer_add_edit <- function(card_code, session_user_data, ns, glif_db, layers_all, input, session) {
   req(input$add_edit_code)
   if (session_user_data$layer$layer_edit_code[session_user_data$layer$layer_code == card_code] == input$add_edit_code) {
     session_user_data$layer$edit_privileges[session_user_data$layer$layer_code == card_code] <- TRUE
     layers_all(get_all_layers(glif_db, session_user_data$map$id, session_user_data$layer[c("id", "edit_privileges")]))
+    session$sendCustomMessage("edit_privileges", TRUE)
   } else {
     wrong_code_alert("Wrong edit code")
   }
