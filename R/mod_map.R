@@ -74,12 +74,12 @@ mod_map_server <- function(id, toggle_theme, geolocation_lat, geolocation_lng) {
       bindEvent(input$pin_btn)
 
     observe({
-      req(geolocation_lat(), geolocation_lng())
+      req(geolocation_lng(), geolocation_lat())
 
       leaflet_proxy |>
         removeMarker("user_location") |>
-        setView(geolocation_lat(), geolocation_lng(), zoom = 18) |>
-        addCircleMarkers(geolocation_lat(), geolocation_lng(),
+        setView(geolocation_lng(), geolocation_lat(), zoom = 18) |>
+        addCircleMarkers(geolocation_lng(), geolocation_lat(),
                          layerId = "user_location")
       # because we want to center view even if lat and lng didn't change;
       # it doesn't work with bindEvent, probably because this is too fast
@@ -89,7 +89,7 @@ mod_map_server <- function(id, toggle_theme, geolocation_lat, geolocation_lng) {
     })
 
     observe({
-      req(geolocation_lat(), geolocation_lng())
+      req(geolocation_lng(), geolocation_lat())
 
 
     }) |>
