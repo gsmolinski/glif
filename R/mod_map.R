@@ -69,11 +69,6 @@ mod_map_server <- function(id, toggle_theme, geolocation_lat, geolocation_lng) {
       bindEvent(input$geolocation_btn)
 
     observe({
-      session$sendCustomMessage("get_geolocation", "placeholder")
-    }) |>
-      bindEvent(input$pin_btn)
-
-    observe({
       req(geolocation_lng(), geolocation_lat())
 
       leaflet_proxy |>
@@ -89,11 +84,28 @@ mod_map_server <- function(id, toggle_theme, geolocation_lat, geolocation_lng) {
     })
 
     observe({
-      req(geolocation_lng(), geolocation_lat())
-
-
+      session$sendCustomMessage("get_geolocation", "placeholder")
+      display_modal_dialog(ns("marker_desc"), "Marker Description")
     }) |>
       bindEvent(input$pin_btn)
+
+    observe({
+      display_modal_dialog(ns("expires_after"), "Expires After (minutes)")
+    }) |>
+      bindEvent(input$marker_desc)
+
+    observe({
+      expires <- as.double(input$expires_after)
+      req(expires)
+      if (isTruthy(geolocation_lng()) & isTruthy(geolocation_lat())) {
+          insert_data_into_markers(glif_db, session$userData$map$id, session$userData$layer$id,
+                                   geolocation_lat(), geolocation_lng(), input$marker_desc, expires)
+      } else {
+        wrong_code_alert("Can't find map coordinates")
+      }
+
+    }) |>
+      bindEvent(input$expires_after)
 
   })
 }
