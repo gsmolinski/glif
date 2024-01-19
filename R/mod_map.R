@@ -114,6 +114,7 @@ mod_map_server <- function(id, toggle_theme, geolocation_lat, geolocation_lng) {
       if (isTruthy(geolocation_lng()) & isTruthy(geolocation_lat())) {
           insert_data_into_markers(glif_db, session$userData$map$id, session$userData$layer,
                                    geolocation_lat(), geolocation_lng(), input$marker_desc, expires)
+        session$sendCustomMessage("get_geolocation", "placeholder") # refresh
       } else {
         wrong_code_alert("Can't find map coordinates. Try again")
       }
