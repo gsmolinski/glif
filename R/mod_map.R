@@ -65,18 +65,31 @@ mod_map_server <- function(id, toggle_theme, geolocation_lat, geolocation_lng) {
 
     observe({
       session$sendCustomMessage("get_geolocation", "placeholder")
-      refresh_data(glif_db, session$userData, marker = TRUE)
     }) |>
       bindEvent(input$geolocation_btn)
 
     observe({
       req(geolocation_lng(), geolocation_lat())
+      refresh_data(glif_db, session$userData, marker = TRUE)
+      if (is.null(session$userData$marker$longitude)) {
+        session$userData$marker <- data.frame(layer_id = integer(0),
+                                              latitude = integer(0),
+                                              longitude = integer(0),
+                                              marker_description = character(0))
+      }
 
       leaflet_proxy |>
-        removeMarker("user_location") |>
+        removeMarker(c("user_location", "layers")) |>
         setView(geolocation_lng(), geolocation_lat(), zoom = 18) |>
         addCircleMarkers(geolocation_lng(), geolocation_lat(),
-                         layerId = "user_location")
+                         layerId = "user_location", color = "#47A4A9",
+                         radius = 10, stroke = FALSE, fillOpacity = 0.5) |>
+        addCircleMarkers(lng = session$userData$marker$longitude,
+                         lat = session$userData$marker$latitude,
+                         popup = htmltools::htmlEscape(session$userData$marker$marker_description),
+                         layerId = "layers", color = "#A94C47", radius = 6, stroke = FALSE, fillOpacity = 0.5,
+                         popupOptions = popupOptions(closeOnClick = TRUE))
+
       # because we want to center view even if lat and lng didn't change;
       # it doesn't work with bindEvent, probably because this is too fast
       # then and req(geolocation()) returns false? I.e. geolocation
@@ -101,7 +114,6 @@ mod_map_server <- function(id, toggle_theme, geolocation_lat, geolocation_lng) {
       if (isTruthy(geolocation_lng()) & isTruthy(geolocation_lat())) {
           insert_data_into_markers(glif_db, session$userData$map$id, session$userData$layer,
                                    geolocation_lat(), geolocation_lng(), input$marker_desc, expires)
-        refresh_data(glif_db, session$userData, marker = TRUE)
       } else {
         wrong_code_alert("Can't find map coordinates. Try again")
       }

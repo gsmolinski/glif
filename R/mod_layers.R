@@ -332,7 +332,6 @@ layer_leave <- function(card_code, session_user_data, glif_db, layers_all, sessi
       dplyr::filter(!layer_code == card_code)
     layers_all(get_all_layers(glif_db, session_user_data$map$id, session_user_data$layer[c("id", "edit_privileges")]))
   }
-  refresh_data(glif_db, session_user_data, marker = TRUE)
 }
 
 #' Add Edit Privileges to Given Layer (Card)
@@ -375,5 +374,4 @@ layer_join <- function(card_code, session_user_data, glif_db, layers_all) {
                layer = TRUE, append = TRUE)
   update_participation_layers(glif_db, "add", session_user_data$layer$id[session_user_data$layer$layer_code == card_code])
   layers_all(get_all_layers(glif_db, session_user_data$map$id, session_user_data$layer[c("id", "edit_privileges")]))
-  refresh_data(glif_db, session_user_data, marker = TRUE, append = TRUE)
 }
