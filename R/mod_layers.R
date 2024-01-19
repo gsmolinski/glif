@@ -157,6 +157,7 @@ mod_layers_server <- function(id, glif_db, inside_map, reload_btn, add_btn, chan
       refresh_data(glif_db, session$userData, layer_code = input$add_layer_code, with_edit_privileges = TRUE,
                    layer = TRUE, append = TRUE)
       layers_all(get_all_layers(glif_db, session$userData$map$id, session$userData$layer[c("id", "edit_privileges")]))
+      session$sendCustomMessage("edit_privileges", TRUE)
     }) |>
       bindEvent(input$add_layer_description)
 
@@ -331,6 +332,7 @@ layer_leave <- function(card_code, session_user_data, glif_db, layers_all, sessi
       dplyr::filter(!layer_code == card_code)
     layers_all(get_all_layers(glif_db, session_user_data$map$id, session_user_data$layer[c("id", "edit_privileges")]))
   }
+  refresh_data(glif_db, session_user_data, marker = TRUE)
 }
 
 #' Add Edit Privileges to Given Layer (Card)
@@ -373,4 +375,5 @@ layer_join <- function(card_code, session_user_data, glif_db, layers_all) {
                layer = TRUE, append = TRUE)
   update_participation_layers(glif_db, "add", session_user_data$layer$id[session_user_data$layer$layer_code == card_code])
   layers_all(get_all_layers(glif_db, session_user_data$map$id, session_user_data$layer[c("id", "edit_privileges")]))
+  refresh_data(glif_db, session_user_data, marker = TRUE, append = TRUE)
 }

@@ -128,12 +128,13 @@ insert_data_into_layers <- function(glif_db_conn, map_id, layer_code, layer_desc
 insert_data_into_markers <- function(glif_db_conn, map_id, layer_id, latitude, longitude,
                                      marker_description, expires) {
 
-  length_layer_ids <- length(layer_id$id[layer_id$edit_privileges])
+  layers_edit_privileges <- layer_id$id[layer_id$edit_privileges]
+  length_layer_ids <- length(layers_edit_privileges)
 
   pool::dbExecute(glif_db_conn,
                   "INSERT INTO markers (map_id, layer_id, latitude, longitude, marker_description, expires)
                   VALUES ($1, $2, $3, $4, $5, $6)",
-                  params = list(rep(map_id, length_layer_ids), layer_id$id, rep(latitude, length_layer_ids),
+                  params = list(rep(map_id, length_layer_ids), layers_edit_privileges, rep(latitude, length_layer_ids),
                                 rep(longitude, length_layer_ids), rep(marker_description, length_layer_ids),
                                 rep(as.double(Sys.time() + 60 * expires), length_layer_ids)))
 }
