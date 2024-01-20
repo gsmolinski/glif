@@ -195,12 +195,21 @@ generate_ids <- function(title, ns) {
 #'
 #' @return
 #' HTML element.
+#' @details
+#' To determine if this is a main card (map itself) we use the biggest number
+#' of participants, but it won't work if the same user who creates map will
+#' create another layer. So to preserve the problem that this new layer will be
+#' highlighted as a map itself, we have added one additional participant when
+#' the map was created. But we can't display this one additional participant in
+#' the card info, so we remove one participant in this is the layer with the
+#' biggest number of participants.
 #' @noRd
 #' @import shinyMobile
 #' @import shiny
 make_card <- function(title, ids, content, edit_privileges, belongs, participants, max_participants, ns) {
   if (participants == max_participants) {
     card_class <- "card_main"
+    participants = participants - 1 # see 'details' section
   } else if (edit_privileges) {
     card_class <- "card_edit"
   } else if (belongs) {

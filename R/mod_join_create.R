@@ -60,7 +60,7 @@ mod_join_create_server <- function(id, glif_db){
       if (length(session$userData$map$id) == 0) {
         insert_data_into_maps(glif_db, input$code_for_map_create)
         refresh_data(glif_db, session$userData, map_code = input$code_for_map_create, map = TRUE)
-        insert_data_into_layers(glif_db, session$userData$map$id, input$code_for_map_create, "The map itself and main markers.", uuid::UUIDgenerate())
+        insert_data_into_layers(glif_db, session$userData$map$id, input$code_for_map_create, "The map itself and main markers.", uuid::UUIDgenerate(), 2) # see documentation in fun make_card from mod_layers.R for a reason why 2
         refresh_data(glif_db, session$userData, layer_code = input$code_for_map_create, with_edit_privileges = TRUE, layer = TRUE)
         session$sendCustomMessage("edit_privileges", TRUE)
         session$sendCustomMessage("inside_map", TRUE)
