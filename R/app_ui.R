@@ -19,11 +19,11 @@ app_ui <- function(request) {
         tags$div(id = "fab_btn_layers",
                  tags$div(id = "add_btn_div", class = "fab fab-right-bottom",
                           tags$a(id = "add_btn", type = "button", class = "f7-action-button fab_map_layers_btns fab_add_btn",
-                                 tags$i(class = "icon f7-icons", "plus_circle_fill"))
+                                 tags$i(class = "icon f7-icons", "plus"))
                  ),
                  tags$div(id = "reload_btn_div", class = "fab fab-right-bottom",
                           tags$a(id = "reload_btn", type = "button", class = "f7-action-button fab_map_layers_btns fab_reload_btn",
-                                 tags$i(class = "icon f7-icons", "arrow_2_circlepath_circle_fill"))
+                                 tags$i(class = "icon f7-icons", "arrow_2_circlepath"))
                  )
         ),
         f7Tabs(id = "glif_tabs",

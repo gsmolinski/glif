@@ -20,5 +20,5 @@ display_modal_dialog <- function(id, title) {
 #' @noRd
 #' @import shinyMobile
 wrong_code_alert <- function(text) {
-  f7Toast(text, closeButton = FALSE, icon = f7Icon("exclamationmark_circle_fill"))
+  f7Toast(text, closeButton = FALSE, icon = f7Icon("exclamationmark_circle_fill"), cssClass = "color-teal")
 }

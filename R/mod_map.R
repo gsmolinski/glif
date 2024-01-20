@@ -18,7 +18,7 @@ mod_map_ui <- function(id) {
     ),
     tags$div(class = "fab fab-right-bottom",
              tags$a(id = ns("geolocation_btn"), type = "button", class = "f7-action-button fab_map_layers_btns fab_geolocation_btn",
-                    tags$i(class = "icon f7-icons", "compass_fill"))
+                    tags$i(class = "icon f7-icons", "compass"))
              )
   )
 }

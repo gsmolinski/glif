@@ -114,4 +114,10 @@
   display: initial;
 }
 
+.dialog-button {
+  color: teal;
+}
 
+.dialog {
+  background-color: #2e3c3c;
+}
