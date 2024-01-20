@@ -331,6 +331,9 @@ layer_leave <- function(card_code, session_user_data, glif_db, layers_all, sessi
     session_user_data$layer <- session_user_data$layer |>
       dplyr::filter(!layer_code == card_code)
     layers_all(get_all_layers(glif_db, session_user_data$map$id, session_user_data$layer[c("id", "edit_privileges")]))
+    if (!any(session_user_data$layer$edit_privileges)) {
+      session$sendCustomMessage("edit_privileges", FALSE)
+    }
   }
 }
 

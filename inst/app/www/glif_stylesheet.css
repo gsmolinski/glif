@@ -121,3 +121,38 @@
 .dialog {
   background-color: #324848;
 }
+
+.card {
+  border: 1px solid lightgrey;
+}
+
+.card_content_text {
+  font-style: italic;
+}
+
+.card_title {
+  font-weight: bold;
+}
+
+.card_participants {
+  text-align: center;
+}
+
+.card:has(.card_main) {
+  background-color: #BE626A;
+  color: white;
+}
+
+.card:has(.card_edit) {
+  background-color: #BE9162;
+  color: white;
+}
+
+.card:has(.card_belong) {
+  background-color: #6269BE;
+  color: white;
+}
+
+.card:has(.card_rest) {
+
+}
