@@ -88,6 +88,7 @@ mod_layers_server <- function(id, glif_db, inside_map, reload_btn, add_btn, chan
       # nothing happens, because the observe below is not run (because
       # end_vh_reached() is not recomputed)
       # generally: we want to re insert cards if this observer was run (so layers changed)
+      req(isolate(end_vh_reached()))
       if (isolate(end_vh_reached())) {
         session$sendCustomMessage("trigger_end_vh_reached", "placeholder")
       }
