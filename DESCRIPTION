@@ -1,9 +1,11 @@
 Package: glif
 Title: Put Light on the Map
-Version: 0.0.0.9000
+Version: 0.0.1
 Authors@R: 
     person("Grzegorz", "Smoliński", , "g.smolinski1@gmail.com", role = c("cre", "aut"))
-Description: TODO.
+Description: Create or join to a map. Create new or join to existing
+    layers. Create your own and see markers others added to the map.
+    'shiny' application for mobile devices.
 License: MIT + file LICENSE
 URL: https://github.com/gsmolinski/glif
 BugReports: https://github.com/gsmolinski/glif/issues
