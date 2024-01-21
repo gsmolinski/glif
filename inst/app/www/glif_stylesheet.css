@@ -1,6 +1,14 @@
 .glif-nav {
-  font-style: italic;
   margin-left: 5%;
+}
+
+.glif-name-nav {
+  color: white;
+  text-shadow: 0 0 2px #fff, 0 0 4px #fff, 0 0 7px #00443D, 0 0 9px#00443D, 0 0 12px #00443D, 0 0 15px #00443D, 0 0 17px #00443D;
+}
+
+.glif-desc-nav {
+  font-style: italic;
 }
 
 @media only screen and (max-width: 600px) {
@@ -154,6 +162,6 @@
 }
 
 .card:has(.card_rest) {
-  background-color: #939d9e;
+  background-color: #629f99;
   color: white;
 }
