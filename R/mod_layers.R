@@ -314,9 +314,7 @@ layer_copy_edit <- function(card_code, session_user_data, session) {
                               session_user_data$layer$layer_code == card_code)
     req(card_data$edit_privileges) # should be TRUE, but let's check this anyway
     session$sendCustomMessage("copy_edit_code", card_data$layer_edit_code)
-    f7Toast("Copied", closeButton = FALSE,
-            icon = f7Icon("checkmark_alt_circle_fill"),
-            closeTimeout = 1000)
+    wrong_code_alert("Copied")
 }
 
 #' Leave Layer (Card)

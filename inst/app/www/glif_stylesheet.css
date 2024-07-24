@@ -9,6 +9,7 @@
 
 .glif-desc-nav {
   font-style: italic;
+  color: grey;
 }
 
 @media only screen and (max-width: 600px) {
@@ -164,4 +165,16 @@
 .card:has(.card_rest) {
   background-color: #629f99;
   color: white;
+}
+
+.shiny-notification-close {
+  display: none;
+}
+
+.shiny-notification {
+  color: white;
+  background-color: #5e887e;
+  width: 50%;
+  margin-bottom: 20%;
+  margin-left: auto;
 }

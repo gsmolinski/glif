@@ -18,7 +18,7 @@ display_modal_dialog <- function(id, title) {
 #' @return
 #' Side effect - shows modal dialog.
 #' @noRd
-#' @import shinyMobile
+#' @import shiny
 wrong_code_alert <- function(text) {
-  f7Toast(text, closeButton = FALSE, icon = f7Icon("exclamationmark_circle_fill"), cssClass = "color-teal")
+  showNotification(text, duration = 2)
 }
