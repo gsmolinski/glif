@@ -178,3 +178,20 @@
   margin-bottom: 20%;
   margin-left: auto;
 }
+
+.leaflet-popup-content {
+  font-size: 133%;
+}
+
+.leaflet-popup-content-wrapper {
+  background-color: #A45F66;
+  color: white;
+}
+
+.leaflet-popup-tip {
+  background-color: #A45F66;
+}
+
+.leaflet-popup-close-button {
+  color: lightgrey !important ;
+}
