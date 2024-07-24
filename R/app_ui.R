@@ -69,7 +69,8 @@ golem_add_external_resources <- function() {
     bundle_resources(
       path = app_sys("app/www"),
       app_title = "glif"
-    )
+    ),
+    shiny.pwa::pwa("https://gsmolinski.shinyapps.io/glif/", title = "glif", output = "./inst/app/www")
     # Add here other external resources
     # for example, you can add shinyalert::useShinyalert()
   )

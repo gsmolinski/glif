@@ -22,6 +22,7 @@ Imports:
     pool (>= 1.0.1),
     RPostgres,
     shiny (>= 1.7.4),
+    shiny.pwa,
     shinyMobile (>= 1.0.0),
     uuid
 Suggests: 
