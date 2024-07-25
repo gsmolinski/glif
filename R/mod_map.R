@@ -79,7 +79,8 @@ mod_map_server <- function(id, toggle_theme, geolocation_lat, geolocation_lng) {
       }
 
       leaflet_proxy |>
-        removeMarker(c("user_location", "layers")) |>
+        removeMarker("user_location") |>
+        clearGroup("layers") |>
         setView(geolocation_lng(), geolocation_lat(), zoom = 17) |>
         addCircleMarkers(geolocation_lng(), geolocation_lat(),
                          layerId = "user_location", color = "#47A4A9",
@@ -87,7 +88,7 @@ mod_map_server <- function(id, toggle_theme, geolocation_lat, geolocation_lng) {
         addCircleMarkers(lng = session$userData$marker$longitude,
                          lat = session$userData$marker$latitude,
                          popup = htmltools::htmlEscape(session$userData$marker$marker_description),
-                         layerId = "layers", color = "#A94C47", radius = 10, stroke = FALSE, fillOpacity = 0.5,
+                         group = "layers", color = "#A94C47", radius = 10, stroke = FALSE, fillOpacity = 0.5,
                          popupOptions = popupOptions(closeOnClick = TRUE))
 
       # because we want to center view even if lat and lng didn't change;
