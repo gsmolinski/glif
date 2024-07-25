@@ -213,7 +213,7 @@ refresh_data <- function(glif_db_conn, session_user_data, map_code = NULL, layer
   }
 
   if (marker) {
-    if (append) {
+    if (append) { # we do not use this append = TRUE for markers currently, but leave it for future
       session_user_data$marker <- dplyr::bind_rows(session_user_data$marker,
                                                    get_markers(glif_db_conn, session_user_data$map$id,
                                                                session_user_data$layer$id))
