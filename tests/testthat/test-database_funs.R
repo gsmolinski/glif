@@ -1,11 +1,16 @@
 config_db <- config::get("glif_db", file = system.file(package = "glif", "database", "database-config.yml"))
-glif_db <- connect_with_db(config_db)
+glif_db <- pool::dbPool(RPostgres::Postgres(),
+                        dbname = config_db$dbname,
+                        host = config_db$host,
+                        port = config_db$port,
+                        user = config_db$user,
+                        password = config_db$password)
 
 test_that("connect_with_database returns connection if can connect
           and given tables exist", {
   expect_type(glif_db, "environment")
-  expect_length(DBI::dbListTables(glif_db), 5)
-  expect_true(all(c("maps", "layers", "markers") %in% DBI::dbListTables(glif_db)))
+  expect_length(pool::dbListTables(glif_db), 5)
+  expect_true(all(c("maps", "layers", "markers") %in% pool::dbListTables(glif_db)))
 })
 
 test_that("get_map_id returns integer(0) if map doesn't exist", {

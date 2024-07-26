@@ -14,11 +14,12 @@ run_app <- function(
   uiPattern = "/",
   ...
 ) {
+  #source(system.file("global.R", package = "glif"))
   with_golem_options(
     app = shinyApp(
       ui = app_ui,
       server = app_server,
-      onStart = onStart,
+      onStart = purrr::partial(eval, expr = global, envir = globalenv()), # makes real global.R as in the shiny apps
       options = options,
       enableBookmarking = enableBookmarking,
       uiPattern = uiPattern

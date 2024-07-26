@@ -1,0 +1,12 @@
+# this is demo config, showing how real database config file should be maked.
+# use template below and create file 'database-config.yml' in this directory.
+# please remember that you need the same schema as in the file 'postgresql_create_table.sql'.
+# App assumes database is PostgreSQL, but you can change this by changing db driver in R/global.R
+# and tests/testthat/test-database_funs.R
+default:
+  glif_db:
+    dbname: # name of your database (do not use quotes!)
+    host: # host on which database runs (do not use quotes!)
+    port: # port on which database runs (do not use quotes!)
+    user: # your username (do not use quotes!)
+    password: # password to database (do not use quotes!)

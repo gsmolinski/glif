@@ -70,8 +70,8 @@ golem_add_external_resources <- function() {
       path = app_sys("app/www"),
       app_title = "glif"
     ),
-    shiny.pwa::pwa("https://gsmolinski.shinyapps.io/glif/", title = "glif",
-                   output = "./inst/app/www") # displays error for test, but it works. It doesn't work with system.file() path created
+    try(shiny.pwa::pwa("https://gsmolinski.shinyapps.io/glif/", title = "glif",
+                   output = "./inst/app/www"), silent = TRUE) # displays error for test, but this path works. It doesn't work with system.file() path created
     # Add here other external resources
     # for example, you can add shinyalert::useShinyalert()
   )

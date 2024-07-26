@@ -7,7 +7,10 @@
 app_server <- function(input, output, session) {
 
   onStop(function() {
-    update_participation_layers(glif_db, "remove", session$userData$layer$id)
+    # when app crashes, i.e. when we stop app on server, then this results to error,
+    # because connection has been already closed (and this function can't be executed). As a result
+    # we do not update number of participants in this case.
+    try(update_participation_layers(glif_db, "remove", session$userData$layer$id), silent = TRUE)
   })
 
   observe({

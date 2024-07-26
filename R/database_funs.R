@@ -18,28 +18,6 @@ connect_with_db <- function(config_db) {
                           password = config_db$password)
 }
 
-#' Delete Rows Which Expired
-#'
-#' @param glif_db_conn connection to database.
-#' @param table
-#'
-#' @return
-#' Used for side effect - removes rows which
-#' are older than current time.
-#' @details
-#' The idea is that some data in database has
-#' date (7 days for map, minutes / hours for markers)
-#' after which it will be removed to keep database clean.
-#' This date is set up by user or automatically.
-#' We need to use `glue`, because there is some error
-#' if param is used as a table name.
-#' @noRd
-delete_expired <- function(glif_db_conn, table_name) {
-  pool::dbExecute(glif_db_conn,
-                  glue::glue_safe("DELETE FROM {table_name} WHERE expires <= $1"),
-                  params = list(as.double(Sys.time())))
-}
-
 #' Add or Remove One Participant For All Given Layers
 #'
 #' @param glif_db_conn connection to database.
