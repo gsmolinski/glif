@@ -8,6 +8,3 @@ dev_history.R
 $run_dev.*
 ^LICENSE\.md$
 ^README\.Rmd$
-^glif1\.jpg$
-^glif2\.jpg$
-^glif3\.jpg$

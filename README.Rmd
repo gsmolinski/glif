@@ -13,7 +13,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-# glif
+# glif <img src="man/figures/glif-hex.png" align="right" height="199"/>
 
 <!-- badges: start -->
 
@@ -40,9 +40,9 @@ Please note that current version of `{glif}` expects PostgreSQL (can be changed 
 
 Deployed app is accessible using following link: [glif-app-online](https://gsmolinski.shinyapps.io/glif/).
 
-|                  |                  |                  |
-|:----------------:|:----------------:|:----------------:|
-| ![](./glif1.jpg) | ![](./glif2.jpg) | ![](./glif3.jpg) |
+|            Start             |             Map              |            Layers            |
+|:----------------------:|:----------------------:|:----------------------:|
+| ![](./man/figures/glif1.jpg) | ![](./man/figures/glif2.jpg) | ![](./man/figures/glif3.jpg) |
 
 ## Functionality
 

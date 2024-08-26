@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# glif
+# glif <img src="man/figures/glif-hex.png" align="right" height="199"/>
 
 <!-- badges: start -->
 
@@ -43,9 +43,9 @@ to create tables as well as YAML config file.
 Deployed app is accessible using following link:
 [glif-app-online](https://gsmolinski.shinyapps.io/glif/).
 
-|                  |                  |                  |
-|:----------------:|:----------------:|:----------------:|
-| ![](./glif1.jpg) | ![](./glif2.jpg) | ![](./glif3.jpg) |
+|            Start             |             Map              |            Layers            |
+|:----------------------------:|:----------------------------:|:----------------------------:|
+| ![](./man/figures/glif1.jpg) | ![](./man/figures/glif2.jpg) | ![](./man/figures/glif3.jpg) |
 
 ## Functionality
 
